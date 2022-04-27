@@ -1,0 +1,4 @@
+int c = 3;
+int d = 2;
+if(c<d) {getName();} else {c=4;d=5;} 
+if(c<d) {getName();} else {c=5;d=4;} 

@@ -1,0 +1,3 @@
+tetro t = getNextTetromino();
+board b = getBoard();
+hardDrop(t,b);

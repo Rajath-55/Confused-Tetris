@@ -25,6 +25,7 @@ stack = {
     "positions": dict(),
     "previousPositions": None
 }
+timer = time()
 
 # main function -> called by the main function of our language?? Not sure
 
@@ -35,6 +36,7 @@ def main(stdscr):
     param stdscr: standard curses screen; will be supplied by wrapper function
     """
     global stack
+    global timer
     # setupMainWindow(stdscr)
     play_window = getBoard(stdscr)
     height, width = stdscr.getmaxyx()
@@ -91,6 +93,7 @@ def main(stdscr):
             # advanced_positions = block.advance()
             # set_speed(block, stack, play_window)
             timer = time()
+        # setSpeed(time_interval, block, play_window)
 
         if candidate_positions:
             if validatePositions(candidate_positions):
@@ -132,7 +135,6 @@ def main(stdscr):
 """
 
 # Input functions
-
 
 def playHW():
     global PLAY_AREA_HEIGHT
@@ -198,8 +200,6 @@ def hardDrop(block, play_window):
             else:
                 block.acceptMove()
             reDrawPiece(play_window, block)
-
-# def setSpeed(timer, time_interval, block, play_window):
     
 
 def setupMainWindow(window):

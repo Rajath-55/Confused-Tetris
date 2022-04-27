@@ -47,8 +47,6 @@ class TetrisLexer(sly.Lexer):
         EASY, MEDIUM, HARD, NORMAL, SPRINT, ARROW_RIGHT,
         SOFT_DROP_FLAG, ARROW_LEFT, CLOCKWISE, ANTI_CLOCKWISE, HARD_DROP_FLAG,
 
-        # NEWLY ADDED
-        # THEN, CHECK_LINE, DOWN, SET_DIRECTION, RIGHT
     }
 
     literals = {'(', ')', '+', '-', '/', '*', '%'}

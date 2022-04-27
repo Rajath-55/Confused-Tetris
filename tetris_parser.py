@@ -5,10 +5,12 @@ from pieces import *
 
 
 class TetrisParser(Parser):
+    #wp left to code
+
     VARIABLE_EXISTS_ERROR = "Variable name already exists, cannot re initialise"
     VARIABLE_MISMATCH_ERROR = "Variable Type mismatch with value"
     VARIABLE_NOT_FOUND_ERROR = "Variable not found"
-    debugfile = 'parser1.out'
+    debugfile = 'parser2.out'
 
     # start = 'init_stmt'
 
@@ -48,13 +50,13 @@ class TetrisParser(Parser):
         return p.statement
 
     # ask
-    @_('compound_stmt all_stmt')
+    @_('compound_stmt statement')
     def compound_stmt(self, p):
-        return
+        return p.compound_stmt + p.statement
 
 
     ##(check)
-    @_('init_stmt', 'reass_stmt', 'expr', 'birf', 'rem_call','import_stmt')
+    @_('init_stmt', 'reass_stmt', 'expr', 'bivf', 'rem_call','import_stmt','if_stmt','if_else_stmt','if_elseif_stmt','break_stmt','exit_stmt')
     def statement(self, p):
         return p[0]
 
@@ -190,6 +192,12 @@ class TetrisParser(Parser):
         return p.set
 
     # val(define birf)
+
+    @_('birf')
+    def val(self, p):
+        return p.birf
+
+    
     @_('NUMBER')
     def val(self, p):
         number = {}
@@ -330,9 +338,7 @@ class TetrisParser(Parser):
 
     # INITIALISATION  & RE-ASSIGNMENT STATEMENT GRAMMAR
 
-    # @_('birf')
-    # def val(self, p):
-    #     return p.birf
+    
 
     # init_stmt
 
@@ -712,10 +718,20 @@ class TetrisParser(Parser):
             else:
                 return {'type': 'err', 'value': ' hardDrop: Params format mismatch'}
         elif p.bivf_wp == 'clearLine':
-            if len(p.params)==2 and p.params[0]['type']=='int' and p.params[1]['type']=='board':
+            if len(p.params)==2 and p.params[0]['type']=='array' and p.params[1]['type']=='board':
                 return f"clearLine({p.params[0]['value']}, {p.params[1]['value']})"
             else:
                 return {'type': 'err', 'value': ' clearLine: Params format mismatch'}
+
+        elif p.bivf_wp == 'display':
+            if len(p.params) == 1 and p.params[0]['type'] == 'str':
+                return f"print({p.params[0]['value']})"
+            else:
+                return {'type': 'err', 'value': ' display: Params format mismatch'}
+
+    @_('bivf_wop_call EOL', 'bivf_wp_call EOL', 'push_call EOL', 'rem_call EOL', 'set_speed_call EOL')
+    def bivf(self,p):
+        return f"{p[0]}\n"
             
 
         
@@ -735,29 +751,29 @@ class TetrisParser(Parser):
 
     # Compound Statements
     # all_stmt
-    @_('init_stmt')
-    def all_stmt(self, p):
-        return p.init_stmt
+    # @_('init_stmt')
+    # def all_stmt(self, p):
+    #     return p.init_stmt
 
-    @_('reass_stmt')
-    def all_stmt(self, p):
-        return p.reass_stmt
+    # @_('reass_stmt')
+    # def all_stmt(self, p):
+    #     return p.reass_stmt
 
-    @_('break_stmt')
-    def all_stmt(self, p):
-        return p.break_stmt
+    # @_('break_stmt')
+    # def all_stmt(self, p):
+    #     return p.break_stmt
 
-    @_('exit_stmt')
-    def all_stmt(self, p):
-        return p.exit_stmt
+    # @_('exit_stmt')
+    # def all_stmt(self, p):
+    #     return p.exit_stmt
 
     # @_('bivf')
     # def all_stmt(self,p):
     #     return p.bivf
 
-    @_('if_else')
-    def all_stmt(self, p):
-        return p.if_else
+    # @_('if_else')
+    # def all_stmt(self, p):
+    #     return p.if_else
 
     # @_('while_loop')
     # def all_stmt(self,p):
@@ -784,7 +800,7 @@ class TetrisParser(Parser):
         if p.expr:
             return p.compound_stmt
         else:
-            return "No"
+            pass
 
     # else_stmt
     @_('IF "(" expr ")" LCURLYPAREN compound_stmt RCURLYPAREN ELSE LCURLYPAREN compound_stmt RCURLYPAREN')
@@ -808,6 +824,13 @@ class TetrisParser(Parser):
         else:
             return p.if_else_stmt
 
+    @_('IF "(" expr ")" LCURLYPAREN compound_stmt RCURLYPAREN ELSE if_elseif_stmt')
+    def if_elseif_stmt(self, p):
+        if p.expr > 0:
+            return p.compound_stmt0
+        else:
+            return p.if_elseif_stmt
+
 
     @_('empty')
     def else_stmt(self, p):
@@ -815,9 +838,9 @@ class TetrisParser(Parser):
 
     # if_else
 
-    @_('if_stmt else_stmt')
-    def if_else(self, p):
-        pass
+    # @_('if_stmt else_stmt')
+    # def if_else(self, p):
+    #     pass
     
     
 
@@ -846,7 +869,7 @@ class TetrisParser(Parser):
         return "ord('d')"
 
 
-
+# just for testing, main function will call the parser and do the parsing.
 if __name__ == "__main__":
     lexer = TetrisLexer()
     parser = TetrisParser()
