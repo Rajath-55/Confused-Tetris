@@ -5,54 +5,59 @@ from pickle import POP
 import sly
 import re
 
+
 class TetrisLexer(sly.Lexer):
-    tokens =  { ID, NUMBER, STRING_LITERAL,
 
-                #OPERATORS AND MISCELLANEOUS
-                ASSIGN, SEPARATOR, EOL,
+    tokens = {
+        # IMPORT
+        IMPORT, GAME,
 
-                # #RELATIONAL OPERATORS
-                EE, LTE, GTE, NE, GT, LT,
+        ID, NUMBER, STRING_LITERAL,
 
-                #LOGICAL OPERATORS
-                AND, OR, NOT,
+        # OPERATORS AND MISCELLANEOUS
+        ASSIGN, SEPARATOR, EOL,
 
-                #BRACES
-                LBLOCKPAREN, RBLOCKPAREN, LCURLYPAREN, RCURLYPAREN, 
+        # #RELATIONAL OPERATORS
+        EE, LTE, GTE, NE, GT, LT,
 
-                #CONDITIONALS AND LOOP STRUCTURES
-                IF, ELSE, WHILE, TIMEOUT,
+        # LOGICAL OPERATORS
+        AND, OR, NOT,
 
-                #DATA TYPES
-                INT_TYPE, STRING_TYPE, ARRAY, BOARD, TETRO, 
-                
-                #BUILT-IN FUNCTIONS
-                GET_BOARD, GET_NAME, GET_NEXT_TETROMINO, SET_SPEED, 
-                SET_MODE, ROTATE_RIGHT, ROTATE_LEFT, MOVE_RIGHT, MOVE_LEFT,  SOFT_DROP, 
-                HARD_DROP, CHECK_CLEARED_LINE, CLEAR_LINE, GET_CHAR, DISPLAY, DISPLAY_NEXT_TETRO, 
-                DISPLAY_TETRO, DISPLAY_BOARD, ADD_SCORE, DISPLAY_LEADERBOARD, CLEAR_SCREEN,
-                PUSH, POP, REM, LEN,
+        # BRACES
+        LBLOCKPAREN, RBLOCKPAREN, LCURLYPAREN, RCURLYPAREN,
 
-                #CONTROL TRANSFER
-                BREAK,EXIT,
+        # CONDITIONALS AND LOOP STRUCTURES
+        IF, ELSE, WHILE, TIMEOUT,
 
-                #FLAGS
-                EASY, MEDIUM, HARD, NORMAL, SPRINT, ARROW_RIGHT, 
-                SOFT_DROP_FLAG, ARROW_LEFT, CLOCKWISE, ANTI_CLOCKWISE, HARD_DROP_FLAG,
+        # DATA TYPES
+        INT_TYPE, STRING_TYPE, ARRAY, BOARD, TETRO, 
 
-                #NEWLY ADDED
-                # THEN, CHECK_LINE, DOWN, SET_DIRECTION, RIGHT                     
-            }
+        # BUILT-IN FUNCTIONS
+        GET_BOARD, GET_NAME, GET_NEXT_TETROMINO, SET_SPEED,
+        SET_MODE, ROTATE_RIGHT, ROTATE_LEFT, MOVE_RIGHT, MOVE_LEFT,
+        HARD_DROP, CHECK_CLEARED_LINE, CLEAR_LINE, GET_CHAR, DISPLAY, DISPLAY_NEXT_TETRO,
+        DISPLAY_TETRO, DISPLAY_BOARD, ADD_SCORE, CLEAR_SCREEN,
+        PUSH, POP, REM, LEN,MOVE_LEFT,MOVE_RIGHT,ROTATE_LEFT,ROTATE_RIGHT,ADVANCE,PLAY_HW,SET_GAME_DIFFICULTY
 
-    literals = { '(', ')', '+', '-', '/', '*', '%'}
-    #56
+        # CONTROL TRANSFER
+        BREAK, EXIT,
+
+        # FLAGS
+        EASY, MEDIUM, HARD, NORMAL, SPRINT, ARROW_RIGHT,
+        SOFT_DROP_FLAG, ARROW_LEFT, CLOCKWISE, ANTI_CLOCKWISE, HARD_DROP_FLAG,
+
+        # NEWLY ADDED
+        # THEN, CHECK_LINE, DOWN, SET_DIRECTION, RIGHT
+    }
+
+    literals = {'(', ')', '+', '-', '/', '*', '%'}
+    # 56
     ignore = ' \t'
-
 
     STRING_LITERAL = r'\"(\\.|[^"\\])*\"'
 
     # Regular expressions for tokens 13+8+10+1+15+7
-    ID = r'[a-zA-Z_][a-zA-Z0-9_]*' 
+    ID = r'[a-zA-Z_][a-zA-Z0-9_]*'
 
     ID['getBoard'] = GET_BOARD
     ID['getName'] = GET_NAME
@@ -64,7 +69,6 @@ class TetrisLexer(sly.Lexer):
     ID['rotateLeft'] = ROTATE_LEFT
     ID['moveRight'] = MOVE_RIGHT
     ID['moveLeft'] = MOVE_LEFT
-    ID['softDropOnLongPress'] = SOFT_DROP
     ID['hardDrop'] = HARD_DROP
     ID['checkClearedLine'] = CHECK_CLEARED_LINE
     ID['clearLine'] = CLEAR_LINE
@@ -74,23 +78,29 @@ class TetrisLexer(sly.Lexer):
     ID['displayTetromino'] = DISPLAY_TETRO
     ID['displayBoard'] = DISPLAY_BOARD
     ID['addScore'] = ADD_SCORE
-    ID['displayLeaderboard'] = DISPLAY_LEADERBOARD
     ID['clearScreen'] = CLEAR_SCREEN
-    
-
-    
-    #13+8+10
+    ID['import'] = IMPORT
+    ID['game'] = GAME
+    ID['moveLeft'] = MOVE_LEFT
+    ID['moveRight'] = MOVE_RIGHT
+    ID['rotateLeft']=ROTATE_LEFT
+    ID['rotateRight'] = ROTATE_RIGHT
+    ID['advance'] = ADVANCE
+    ID['playHW'] = PLAY_HW
+    ID['setGameDifficulty'] = SET_GAME_DIFFICULTY
+    # 13+8+10
     ID['while'] = WHILE
     ID['if'] = IF
     # ID['then'] = THEN
     ID['else'] = ELSE
     ID['timeout'] = TIMEOUT
-    #13+8+5
+    # 13+8+5
     ID['int'] = INT_TYPE
     ID['str'] = STRING_TYPE
     ID['tetro'] = TETRO
     ID['board'] = BOARD
     ID['array'] = ARRAY
+    # ID['position'] = POSITION
 
     ID['push'] = PUSH
     ID['pop'] = POP
@@ -104,7 +114,7 @@ class TetrisLexer(sly.Lexer):
     ID['or'] = OR
     ID['not'] = NOT
 
-    #13+8
+    # 13+8
     ID['EASY'] = EASY
     ID['MEDIUM'] = MEDIUM
     ID['HARD'] = HARD
@@ -113,25 +123,24 @@ class TetrisLexer(sly.Lexer):
     ID['NORMAL'] = NORMAL
     ID['SPRINT'] = SPRINT
     ID['ARROW_RIGHT'] = ARROW_RIGHT
-    ID['SOFT_DROP'] = SOFT_DROP_FLAG
     ID['ARROW_LEFT'] = ARROW_LEFT
     ID['CLOCKWISE'] = CLOCKWISE
     ID['ANTI_CLOCKWISE'] = ANTI_CLOCKWISE
     ID['HARD_DROP'] = HARD_DROP_FLAG
+    ID['SOFT_DROP'] = SOFT_DROP_FLAG
 
-    #8
+    # 8
     NUMBER = r'[0-9][0-9]*'
     ASSIGN = r'='
     GT = r'>'
-    LT=r'<'
+    LT = r'<'
     GTE = r'>='
     LTE = r'<='
     EE = r'=='
     NE = r'!='
-    
 
-    #BRACES
-    LBLOCKPAREN = r'\[' 
+    # BRACES
+    LBLOCKPAREN = r'\['
     RBLOCKPAREN = r'\]'
     LCURLYPAREN = r'\{'
     RCURLYPAREN = r'\}'
@@ -144,9 +153,10 @@ class TetrisLexer(sly.Lexer):
         self.lineno += t.value.count('\n')
 
     def error(self, t):
-            print('Line %d: Bad character %r' % (self.lineno, t.value[0]))
-            self.index += 1
-                  
+        print('Line %d: Bad character %r' % (self.lineno, t.value[0]))
+        self.index += 1
+
+
 if __name__ == '__main__':
     data = '''
     str x = "hey";
@@ -161,9 +171,10 @@ if __name__ == '__main__':
         print(tok)
 
     #tokens: tokens + literals + ignore
-    print("Distinct patterns : " + str(len(lexer.tokens) + len(lexer.literals) + 1 ))
-    #token types: token lengths
+    print("Distinct patterns : " + str(len(lexer.tokens) + len(lexer.literals) + 1))
+    # token types: token lengths
     print("Distinct token types: " + str(len(lexer.tokens) + len(lexer.literals)))
-    #token types are encoded into an enumerated type or a number - 3
-    #Token types that are just literals
-    print("Number of Token types that are the lexemes themselves: " + str(len(lexer.literals)))
+    # token types are encoded into an enumerated type or a number - 3
+    # Token types that are just literals
+    print("Number of Token types that are the lexemes themselves: " +
+          str(len(lexer.literals)))

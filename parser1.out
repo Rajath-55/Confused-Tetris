@@ -1,0 +1,2256 @@
+Grammar:
+
+Rule 0     S' -> statement
+Rule 1     statement -> rem_call
+Rule 2     statement -> birf
+Rule 3     statement -> expr
+Rule 4     statement -> reass_stmt
+Rule 5     statement -> init_stmt
+Rule 6     reass_stmt -> ID ASSIGN expr EOL
+Rule 7     reass_stmt -> ID ASSIGN array_val EOL
+Rule 8     reass_stmt -> ID ASSIGN val EOL
+Rule 9     init_stmt -> ARRAY ID ASSIGN array_val EOL
+Rule 10    init_stmt -> data_type ID ASSIGN expr EOL
+Rule 11    init_stmt -> data_type ID ASSIGN val EOL
+Rule 12    data_type -> TETRO
+Rule 13    data_type -> BOARD
+Rule 14    data_type -> ARRAY
+Rule 15    data_type -> STRING_TYPE
+Rule 16    data_type -> INT_TYPE
+Rule 17    array_val -> LBLOCKPAREN set RBLOCKPAREN
+Rule 18    array_val -> LBLOCKPAREN RBLOCKPAREN
+Rule 19    set -> set SEPARATOR val
+Rule 20    set -> val
+Rule 21    val -> STRING_LITERAL
+Rule 22    val -> NUMBER
+Rule 23    expr -> expr OR expr  [precedence=left, level=1]
+Rule 24    expr -> expr AND expr  [precedence=left, level=2]
+Rule 25    expr -> NOT expr  [precedence=left, level=3]
+Rule 26    expr -> expr EE expr  [precedence=nonassoc, level=4]
+Rule 27    expr -> expr NE expr  [precedence=nonassoc, level=4]
+Rule 28    expr -> expr GTE expr  [precedence=nonassoc, level=4]
+Rule 29    expr -> expr LTE expr  [precedence=nonassoc, level=4]
+Rule 30    expr -> expr LT expr  [precedence=nonassoc, level=4]
+Rule 31    expr -> expr GT expr  [precedence=nonassoc, level=4]
+Rule 32    expr -> expr - expr  [precedence=left, level=5]
+Rule 33    expr -> expr + expr  [precedence=left, level=5]
+Rule 34    expr -> expr % expr  [precedence=left, level=6]
+Rule 35    expr -> expr / expr  [precedence=left, level=6]
+Rule 36    expr -> expr * expr  [precedence=left, level=6]
+Rule 37    expr -> factor
+Rule 38    expr -> - factor  [precedence=right, level=7]
+Rule 39    factor -> ( expr )
+Rule 40    factor -> operand
+Rule 41    operand -> NUMBER
+Rule 42    operand -> ID
+Rule 43    params -> params SEPARATOR param
+Rule 44    params -> param
+Rule 45    param -> val
+Rule 46    param -> ID
+Rule 47    birf_wop -> GET_CHAR
+Rule 48    birf_wop -> GET_NEXT_TETROMINO
+Rule 49    birf_wop -> GET_NAME
+Rule 50    birf_wop_call -> birf_wop ( )
+Rule 51    birf_wp -> CHECK_CLEARED_LINE
+Rule 52    birf_wp -> GET_BOARD
+Rule 53    pop_call -> POP ( array_val )
+Rule 54    pop_call -> POP ( ID )
+Rule 55    len_call -> LEN ( array_val )
+Rule 56    len_call -> LEN ( ID )
+Rule 57    birf_wp_call -> len_call
+Rule 58    birf_wp_call -> pop_call
+Rule 59    birf_wp_call -> birf_wp ( params )
+Rule 60    birf -> birf_wp_call
+Rule 61    birf -> birf_wop_call
+Rule 62    bivf_wop -> CLEAR_SCREEN
+Rule 63    bivf_wop -> DISPLAY_LEADERBOARD
+Rule 64    bivf_wop -> DISPLAY_BOARD
+Rule 65    bivf_wop -> HARD_DROP
+Rule 66    bivf_wop -> MOVE_LEFT
+Rule 67    bivf_wop -> MOVE_RIGHT
+Rule 68    bivf_wop -> ROTATE_LEFT
+Rule 69    bivf_wop -> ROTATE_RIGHT
+Rule 70    bivf_wp -> PUSH
+Rule 71    bivf_wp -> REM
+Rule 72    bivf_wp -> ADD_SCORE
+Rule 73    bivf_wp -> DISPLAY_NEXT_TETRO
+Rule 74    bivf_wp -> DISPLAY_TETRO
+Rule 75    bivf_wp -> DISPLAY
+Rule 76    bivf_wp -> CLEAR_LINE
+Rule 77    bivf_wp -> SOFT_DROP
+Rule 78    set_speed_call -> SET_SPEED ( HARD )
+Rule 79    set_speed_call -> SET_SPEED ( MEDIUM )
+Rule 80    set_speed_call -> SET_SPEED ( EASY )
+Rule 81    set_game_mode_call -> SET_MODE ( SPRINT )
+Rule 82    set_game_mode_call -> SET_MODE ( NORMAL )
+Rule 83    rem_call -> REM ( ID SEPARATOR ID )
+Rule 84    rem_call -> REM ( ID SEPARATOR NUMBER )
+Rule 85    rem_call -> REM ( array_val SEPARATOR ID )
+Rule 86    rem_call -> REM ( array_val SEPARATOR NUMBER )
+Rule 87    break_stmt -> BREAK EOL
+Rule 88    exit_stmt -> EXIT EOL
+Rule 89    all_stmt -> if_else
+Rule 90    all_stmt -> exit_stmt
+Rule 91    all_stmt -> break_stmt
+Rule 92    all_stmt -> reass_stmt
+Rule 93    all_stmt -> init_stmt
+Rule 94    compound_stmt -> compound_stmt all_stmt
+Rule 95    compound_stmt -> all_stmt
+Rule 96    empty -> <empty>
+Rule 97    if_stmt -> IF ( expr ) LCURLYPAREN compound_stmt RCURLYPAREN
+Rule 98    else_stmt -> empty
+Rule 99    else_stmt -> ELSE if_stmt else_stmt
+Rule 100   else_stmt -> ELSE LCURLYPAREN compound_stmt RCURLYPAREN
+Rule 101   if_else -> if_stmt else_stmt
+
+Unused terminals:
+
+    CLOCKWISE
+    ANTI_CLOCKWISE
+    ARROW_LEFT
+    SOFT_DROP_FLAG
+    WHILE
+    TIMEOUT
+    ARROW_RIGHT
+    HARD_DROP_FLAG
+
+Terminals, with rules where they appear:
+
+%                    : 34
+(                    : 39 50 53 54 55 56 59 78 79 80 81 82 83 84 85 86 97
+)                    : 39 50 53 54 55 56 59 78 79 80 81 82 83 84 85 86 97
+*                    : 36
++                    : 33
+-                    : 32 38
+/                    : 35
+ADD_SCORE            : 72
+AND                  : 24
+ANTI_CLOCKWISE       : 
+ARRAY                : 9 14
+ARROW_LEFT           : 
+ARROW_RIGHT          : 
+ASSIGN               : 6 7 8 9 10 11
+BOARD                : 13
+BREAK                : 87
+CHECK_CLEARED_LINE   : 51
+CLEAR_LINE           : 76
+CLEAR_SCREEN         : 62
+CLOCKWISE            : 
+DISPLAY              : 75
+DISPLAY_BOARD        : 64
+DISPLAY_LEADERBOARD  : 63
+DISPLAY_NEXT_TETRO   : 73
+DISPLAY_TETRO        : 74
+EASY                 : 80
+EE                   : 26
+ELSE                 : 99 100
+EOL                  : 6 7 8 9 10 11 87 88
+EXIT                 : 88
+GET_BOARD            : 52
+GET_CHAR             : 47
+GET_NAME             : 49
+GET_NEXT_TETROMINO   : 48
+GT                   : 31
+GTE                  : 28
+HARD                 : 78
+HARD_DROP            : 65
+HARD_DROP_FLAG       : 
+ID                   : 6 7 8 9 10 11 42 46 54 56 83 83 84 85
+IF                   : 97
+INT_TYPE             : 16
+LBLOCKPAREN          : 17 18
+LCURLYPAREN          : 97 100
+LEN                  : 55 56
+LT                   : 30
+LTE                  : 29
+MEDIUM               : 79
+MOVE_LEFT            : 66
+MOVE_RIGHT           : 67
+NE                   : 27
+NORMAL               : 82
+NOT                  : 25
+NUMBER               : 22 41 84 86
+OR                   : 23
+POP                  : 53 54
+PUSH                 : 70
+RBLOCKPAREN          : 17 18
+RCURLYPAREN          : 97 100
+REM                  : 71 83 84 85 86
+ROTATE_LEFT          : 68
+ROTATE_RIGHT         : 69
+SEPARATOR            : 19 43 83 84 85 86
+SET_MODE             : 81 82
+SET_SPEED            : 78 79 80
+SOFT_DROP            : 77
+SOFT_DROP_FLAG       : 
+SPRINT               : 81
+STRING_LITERAL       : 21
+STRING_TYPE          : 15
+TETRO                : 12
+TIMEOUT              : 
+WHILE                : 
+error                : 
+
+Nonterminals, with rules where they appear:
+
+all_stmt             : 94 95
+array_val            : 7 9 53 55 85 86
+birf                 : 2
+birf_wop             : 50
+birf_wop_call        : 61
+birf_wp              : 59
+birf_wp_call         : 60
+bivf_wop             : 
+bivf_wp              : 
+break_stmt           : 91
+compound_stmt        : 94 97 100
+data_type            : 10 11
+else_stmt            : 99 101
+empty                : 98
+exit_stmt            : 90
+expr                 : 3 6 10 23 23 24 24 25 26 26 27 27 28 28 29 29 30 30 31 31 32 32 33 33 34 34 35 35 36 36 39 97
+factor               : 37 38
+if_else              : 89
+if_stmt              : 99 101
+init_stmt            : 5 93
+len_call             : 57
+operand              : 40
+param                : 43 44
+params               : 43 59
+pop_call             : 58
+reass_stmt           : 4 92
+rem_call             : 1
+set                  : 17 19
+set_game_mode_call   : 
+set_speed_call       : 
+statement            : 0
+val                  : 8 11 19 20 45
+
+
+state 0
+
+    (0) S' -> . statement
+    (1) statement -> . rem_call
+    (2) statement -> . birf
+    (3) statement -> . expr
+    (4) statement -> . reass_stmt
+    (5) statement -> . init_stmt
+    (83) rem_call -> . REM ( ID SEPARATOR ID )
+    (84) rem_call -> . REM ( ID SEPARATOR NUMBER )
+    (85) rem_call -> . REM ( array_val SEPARATOR ID )
+    (86) rem_call -> . REM ( array_val SEPARATOR NUMBER )
+    (60) birf -> . birf_wp_call
+    (61) birf -> . birf_wop_call
+    (23) expr -> . expr OR expr
+    (24) expr -> . expr AND expr
+    (25) expr -> . NOT expr
+    (26) expr -> . expr EE expr
+    (27) expr -> . expr NE expr
+    (28) expr -> . expr GTE expr
+    (29) expr -> . expr LTE expr
+    (30) expr -> . expr LT expr
+    (31) expr -> . expr GT expr
+    (32) expr -> . expr - expr
+    (33) expr -> . expr + expr
+    (34) expr -> . expr % expr
+    (35) expr -> . expr / expr
+    (36) expr -> . expr * expr
+    (37) expr -> . factor
+    (38) expr -> . - factor
+    (6) reass_stmt -> . ID ASSIGN expr EOL
+    (7) reass_stmt -> . ID ASSIGN array_val EOL
+    (8) reass_stmt -> . ID ASSIGN val EOL
+    (9) init_stmt -> . ARRAY ID ASSIGN array_val EOL
+    (10) init_stmt -> . data_type ID ASSIGN expr EOL
+    (11) init_stmt -> . data_type ID ASSIGN val EOL
+    (57) birf_wp_call -> . len_call
+    (58) birf_wp_call -> . pop_call
+    (59) birf_wp_call -> . birf_wp ( params )
+    (50) birf_wop_call -> . birf_wop ( )
+    (39) factor -> . ( expr )
+    (40) factor -> . operand
+    (12) data_type -> . TETRO
+    (13) data_type -> . BOARD
+    (14) data_type -> . ARRAY
+    (15) data_type -> . STRING_TYPE
+    (16) data_type -> . INT_TYPE
+    (55) len_call -> . LEN ( array_val )
+    (56) len_call -> . LEN ( ID )
+    (53) pop_call -> . POP ( array_val )
+    (54) pop_call -> . POP ( ID )
+    (51) birf_wp -> . CHECK_CLEARED_LINE
+    (52) birf_wp -> . GET_BOARD
+    (47) birf_wop -> . GET_CHAR
+    (48) birf_wop -> . GET_NEXT_TETROMINO
+    (49) birf_wop -> . GET_NAME
+    (41) operand -> . NUMBER
+    (42) operand -> . ID
+    REM             shift and go to state 7
+    NOT             shift and go to state 13
+    -               shift and go to state 14
+    ID              shift and go to state 9
+    ARRAY           shift and go to state 16
+    (               shift and go to state 8
+    TETRO           shift and go to state 23
+    BOARD           shift and go to state 24
+    STRING_TYPE     shift and go to state 25
+    INT_TYPE        shift and go to state 26
+    LEN             shift and go to state 27
+    POP             shift and go to state 28
+    CHECK_CLEARED_LINE shift and go to state 29
+    GET_BOARD       shift and go to state 30
+    GET_CHAR        shift and go to state 31
+    GET_NEXT_TETROMINO shift and go to state 32
+    GET_NAME        shift and go to state 33
+    NUMBER          shift and go to state 10
+
+    statement                      shift and go to state 1
+    rem_call                       shift and go to state 2
+    birf                           shift and go to state 3
+    expr                           shift and go to state 4
+    reass_stmt                     shift and go to state 5
+    init_stmt                      shift and go to state 6
+    birf_wp_call                   shift and go to state 11
+    birf_wop_call                  shift and go to state 12
+    factor                         shift and go to state 15
+    data_type                      shift and go to state 17
+    len_call                       shift and go to state 18
+    pop_call                       shift and go to state 19
+    birf_wp                        shift and go to state 20
+    birf_wop                       shift and go to state 21
+    operand                        shift and go to state 22
+
+state 1
+
+    (0) S' -> statement .
+
+
+state 2
+
+    (1) statement -> rem_call .
+    $end            reduce using rule 1 (statement -> rem_call .)
+
+
+state 3
+
+    (2) statement -> birf .
+    $end            reduce using rule 2 (statement -> birf .)
+
+
+state 4
+
+    (3) statement -> expr .
+    (23) expr -> expr . OR expr
+    (24) expr -> expr . AND expr
+    (26) expr -> expr . EE expr
+    (27) expr -> expr . NE expr
+    (28) expr -> expr . GTE expr
+    (29) expr -> expr . LTE expr
+    (30) expr -> expr . LT expr
+    (31) expr -> expr . GT expr
+    (32) expr -> expr . - expr
+    (33) expr -> expr . + expr
+    (34) expr -> expr . % expr
+    (35) expr -> expr . / expr
+    (36) expr -> expr . * expr
+    $end            reduce using rule 3 (statement -> expr .)
+    OR              shift and go to state 34
+    AND             shift and go to state 35
+    EE              shift and go to state 36
+    NE              shift and go to state 37
+    GTE             shift and go to state 38
+    LTE             shift and go to state 39
+    LT              shift and go to state 40
+    GT              shift and go to state 41
+    -               shift and go to state 42
+    +               shift and go to state 43
+    %               shift and go to state 44
+    /               shift and go to state 45
+    *               shift and go to state 46
+
+
+state 5
+
+    (4) statement -> reass_stmt .
+    $end            reduce using rule 4 (statement -> reass_stmt .)
+
+
+state 6
+
+    (5) statement -> init_stmt .
+    $end            reduce using rule 5 (statement -> init_stmt .)
+
+
+state 7
+
+    (83) rem_call -> REM . ( ID SEPARATOR ID )
+    (84) rem_call -> REM . ( ID SEPARATOR NUMBER )
+    (85) rem_call -> REM . ( array_val SEPARATOR ID )
+    (86) rem_call -> REM . ( array_val SEPARATOR NUMBER )
+    (               shift and go to state 47
+
+
+state 8
+
+    (39) factor -> ( . expr )
+    (23) expr -> . expr OR expr
+    (24) expr -> . expr AND expr
+    (25) expr -> . NOT expr
+    (26) expr -> . expr EE expr
+    (27) expr -> . expr NE expr
+    (28) expr -> . expr GTE expr
+    (29) expr -> . expr LTE expr
+    (30) expr -> . expr LT expr
+    (31) expr -> . expr GT expr
+    (32) expr -> . expr - expr
+    (33) expr -> . expr + expr
+    (34) expr -> . expr % expr
+    (35) expr -> . expr / expr
+    (36) expr -> . expr * expr
+    (37) expr -> . factor
+    (38) expr -> . - factor
+    (39) factor -> . ( expr )
+    (40) factor -> . operand
+    (41) operand -> . NUMBER
+    (42) operand -> . ID
+    NOT             shift and go to state 13
+    -               shift and go to state 14
+    (               shift and go to state 8
+    NUMBER          shift and go to state 10
+    ID              shift and go to state 49
+
+    expr                           shift and go to state 48
+    factor                         shift and go to state 15
+    operand                        shift and go to state 22
+
+state 9
+
+    (6) reass_stmt -> ID . ASSIGN expr EOL
+    (7) reass_stmt -> ID . ASSIGN array_val EOL
+    (8) reass_stmt -> ID . ASSIGN val EOL
+    (42) operand -> ID .
+    ASSIGN          shift and go to state 50
+    OR              reduce using rule 42 (operand -> ID .)
+    AND             reduce using rule 42 (operand -> ID .)
+    EE              reduce using rule 42 (operand -> ID .)
+    NE              reduce using rule 42 (operand -> ID .)
+    GTE             reduce using rule 42 (operand -> ID .)
+    LTE             reduce using rule 42 (operand -> ID .)
+    LT              reduce using rule 42 (operand -> ID .)
+    GT              reduce using rule 42 (operand -> ID .)
+    -               reduce using rule 42 (operand -> ID .)
+    +               reduce using rule 42 (operand -> ID .)
+    %               reduce using rule 42 (operand -> ID .)
+    /               reduce using rule 42 (operand -> ID .)
+    *               reduce using rule 42 (operand -> ID .)
+    $end            reduce using rule 42 (operand -> ID .)
+
+
+state 10
+
+    (41) operand -> NUMBER .
+    OR              reduce using rule 41 (operand -> NUMBER .)
+    AND             reduce using rule 41 (operand -> NUMBER .)
+    EE              reduce using rule 41 (operand -> NUMBER .)
+    NE              reduce using rule 41 (operand -> NUMBER .)
+    GTE             reduce using rule 41 (operand -> NUMBER .)
+    LTE             reduce using rule 41 (operand -> NUMBER .)
+    LT              reduce using rule 41 (operand -> NUMBER .)
+    GT              reduce using rule 41 (operand -> NUMBER .)
+    -               reduce using rule 41 (operand -> NUMBER .)
+    +               reduce using rule 41 (operand -> NUMBER .)
+    %               reduce using rule 41 (operand -> NUMBER .)
+    /               reduce using rule 41 (operand -> NUMBER .)
+    *               reduce using rule 41 (operand -> NUMBER .)
+    $end            reduce using rule 41 (operand -> NUMBER .)
+    )               reduce using rule 41 (operand -> NUMBER .)
+    EOL             reduce using rule 41 (operand -> NUMBER .)
+
+
+state 11
+
+    (60) birf -> birf_wp_call .
+    $end            reduce using rule 60 (birf -> birf_wp_call .)
+
+
+state 12
+
+    (61) birf -> birf_wop_call .
+    $end            reduce using rule 61 (birf -> birf_wop_call .)
+
+
+state 13
+
+    (25) expr -> NOT . expr
+    (23) expr -> . expr OR expr
+    (24) expr -> . expr AND expr
+    (25) expr -> . NOT expr
+    (26) expr -> . expr EE expr
+    (27) expr -> . expr NE expr
+    (28) expr -> . expr GTE expr
+    (29) expr -> . expr LTE expr
+    (30) expr -> . expr LT expr
+    (31) expr -> . expr GT expr
+    (32) expr -> . expr - expr
+    (33) expr -> . expr + expr
+    (34) expr -> . expr % expr
+    (35) expr -> . expr / expr
+    (36) expr -> . expr * expr
+    (37) expr -> . factor
+    (38) expr -> . - factor
+    (39) factor -> . ( expr )
+    (40) factor -> . operand
+    (41) operand -> . NUMBER
+    (42) operand -> . ID
+    NOT             shift and go to state 13
+    -               shift and go to state 14
+    (               shift and go to state 8
+    NUMBER          shift and go to state 10
+    ID              shift and go to state 49
+
+    expr                           shift and go to state 51
+    factor                         shift and go to state 15
+    operand                        shift and go to state 22
+
+state 14
+
+    (38) expr -> - . factor
+    (39) factor -> . ( expr )
+    (40) factor -> . operand
+    (41) operand -> . NUMBER
+    (42) operand -> . ID
+    (               shift and go to state 8
+    NUMBER          shift and go to state 10
+    ID              shift and go to state 49
+
+    factor                         shift and go to state 52
+    operand                        shift and go to state 22
+
+state 15
+
+    (37) expr -> factor .
+    OR              reduce using rule 37 (expr -> factor .)
+    AND             reduce using rule 37 (expr -> factor .)
+    EE              reduce using rule 37 (expr -> factor .)
+    NE              reduce using rule 37 (expr -> factor .)
+    GTE             reduce using rule 37 (expr -> factor .)
+    LTE             reduce using rule 37 (expr -> factor .)
+    LT              reduce using rule 37 (expr -> factor .)
+    GT              reduce using rule 37 (expr -> factor .)
+    -               reduce using rule 37 (expr -> factor .)
+    +               reduce using rule 37 (expr -> factor .)
+    %               reduce using rule 37 (expr -> factor .)
+    /               reduce using rule 37 (expr -> factor .)
+    *               reduce using rule 37 (expr -> factor .)
+    $end            reduce using rule 37 (expr -> factor .)
+    )               reduce using rule 37 (expr -> factor .)
+    EOL             reduce using rule 37 (expr -> factor .)
+
+
+state 16
+
+    (9) init_stmt -> ARRAY . ID ASSIGN array_val EOL
+    (14) data_type -> ARRAY .
+  ! shift/reduce conflict for ID resolved as shift
+    ID              shift and go to state 53
+
+
+state 17
+
+    (10) init_stmt -> data_type . ID ASSIGN expr EOL
+    (11) init_stmt -> data_type . ID ASSIGN val EOL
+    ID              shift and go to state 54
+
+
+state 18
+
+    (57) birf_wp_call -> len_call .
+    $end            reduce using rule 57 (birf_wp_call -> len_call .)
+
+
+state 19
+
+    (58) birf_wp_call -> pop_call .
+    $end            reduce using rule 58 (birf_wp_call -> pop_call .)
+
+
+state 20
+
+    (59) birf_wp_call -> birf_wp . ( params )
+    (               shift and go to state 55
+
+
+state 21
+
+    (50) birf_wop_call -> birf_wop . ( )
+    (               shift and go to state 56
+
+
+state 22
+
+    (40) factor -> operand .
+    OR              reduce using rule 40 (factor -> operand .)
+    AND             reduce using rule 40 (factor -> operand .)
+    EE              reduce using rule 40 (factor -> operand .)
+    NE              reduce using rule 40 (factor -> operand .)
+    GTE             reduce using rule 40 (factor -> operand .)
+    LTE             reduce using rule 40 (factor -> operand .)
+    LT              reduce using rule 40 (factor -> operand .)
+    GT              reduce using rule 40 (factor -> operand .)
+    -               reduce using rule 40 (factor -> operand .)
+    +               reduce using rule 40 (factor -> operand .)
+    %               reduce using rule 40 (factor -> operand .)
+    /               reduce using rule 40 (factor -> operand .)
+    *               reduce using rule 40 (factor -> operand .)
+    $end            reduce using rule 40 (factor -> operand .)
+    )               reduce using rule 40 (factor -> operand .)
+    EOL             reduce using rule 40 (factor -> operand .)
+
+
+state 23
+
+    (12) data_type -> TETRO .
+    ID              reduce using rule 12 (data_type -> TETRO .)
+
+
+state 24
+
+    (13) data_type -> BOARD .
+    ID              reduce using rule 13 (data_type -> BOARD .)
+
+
+state 25
+
+    (15) data_type -> STRING_TYPE .
+    ID              reduce using rule 15 (data_type -> STRING_TYPE .)
+
+
+state 26
+
+    (16) data_type -> INT_TYPE .
+    ID              reduce using rule 16 (data_type -> INT_TYPE .)
+
+
+state 27
+
+    (55) len_call -> LEN . ( array_val )
+    (56) len_call -> LEN . ( ID )
+    (               shift and go to state 57
+
+
+state 28
+
+    (53) pop_call -> POP . ( array_val )
+    (54) pop_call -> POP . ( ID )
+    (               shift and go to state 58
+
+
+state 29
+
+    (51) birf_wp -> CHECK_CLEARED_LINE .
+    (               reduce using rule 51 (birf_wp -> CHECK_CLEARED_LINE .)
+
+
+state 30
+
+    (52) birf_wp -> GET_BOARD .
+    (               reduce using rule 52 (birf_wp -> GET_BOARD .)
+
+
+state 31
+
+    (47) birf_wop -> GET_CHAR .
+    (               reduce using rule 47 (birf_wop -> GET_CHAR .)
+
+
+state 32
+
+    (48) birf_wop -> GET_NEXT_TETROMINO .
+    (               reduce using rule 48 (birf_wop -> GET_NEXT_TETROMINO .)
+
+
+state 33
+
+    (49) birf_wop -> GET_NAME .
+    (               reduce using rule 49 (birf_wop -> GET_NAME .)
+
+
+state 34
+
+    (23) expr -> expr OR . expr
+    (23) expr -> . expr OR expr
+    (24) expr -> . expr AND expr
+    (25) expr -> . NOT expr
+    (26) expr -> . expr EE expr
+    (27) expr -> . expr NE expr
+    (28) expr -> . expr GTE expr
+    (29) expr -> . expr LTE expr
+    (30) expr -> . expr LT expr
+    (31) expr -> . expr GT expr
+    (32) expr -> . expr - expr
+    (33) expr -> . expr + expr
+    (34) expr -> . expr % expr
+    (35) expr -> . expr / expr
+    (36) expr -> . expr * expr
+    (37) expr -> . factor
+    (38) expr -> . - factor
+    (39) factor -> . ( expr )
+    (40) factor -> . operand
+    (41) operand -> . NUMBER
+    (42) operand -> . ID
+    NOT             shift and go to state 13
+    -               shift and go to state 14
+    (               shift and go to state 8
+    NUMBER          shift and go to state 10
+    ID              shift and go to state 49
+
+    expr                           shift and go to state 59
+    factor                         shift and go to state 15
+    operand                        shift and go to state 22
+
+state 35
+
+    (24) expr -> expr AND . expr
+    (23) expr -> . expr OR expr
+    (24) expr -> . expr AND expr
+    (25) expr -> . NOT expr
+    (26) expr -> . expr EE expr
+    (27) expr -> . expr NE expr
+    (28) expr -> . expr GTE expr
+    (29) expr -> . expr LTE expr
+    (30) expr -> . expr LT expr
+    (31) expr -> . expr GT expr
+    (32) expr -> . expr - expr
+    (33) expr -> . expr + expr
+    (34) expr -> . expr % expr
+    (35) expr -> . expr / expr
+    (36) expr -> . expr * expr
+    (37) expr -> . factor
+    (38) expr -> . - factor
+    (39) factor -> . ( expr )
+    (40) factor -> . operand
+    (41) operand -> . NUMBER
+    (42) operand -> . ID
+    NOT             shift and go to state 13
+    -               shift and go to state 14
+    (               shift and go to state 8
+    NUMBER          shift and go to state 10
+    ID              shift and go to state 49
+
+    expr                           shift and go to state 60
+    factor                         shift and go to state 15
+    operand                        shift and go to state 22
+
+state 36
+
+    (26) expr -> expr EE . expr
+    (23) expr -> . expr OR expr
+    (24) expr -> . expr AND expr
+    (25) expr -> . NOT expr
+    (26) expr -> . expr EE expr
+    (27) expr -> . expr NE expr
+    (28) expr -> . expr GTE expr
+    (29) expr -> . expr LTE expr
+    (30) expr -> . expr LT expr
+    (31) expr -> . expr GT expr
+    (32) expr -> . expr - expr
+    (33) expr -> . expr + expr
+    (34) expr -> . expr % expr
+    (35) expr -> . expr / expr
+    (36) expr -> . expr * expr
+    (37) expr -> . factor
+    (38) expr -> . - factor
+    (39) factor -> . ( expr )
+    (40) factor -> . operand
+    (41) operand -> . NUMBER
+    (42) operand -> . ID
+    NOT             shift and go to state 13
+    -               shift and go to state 14
+    (               shift and go to state 8
+    NUMBER          shift and go to state 10
+    ID              shift and go to state 49
+
+    expr                           shift and go to state 61
+    factor                         shift and go to state 15
+    operand                        shift and go to state 22
+
+state 37
+
+    (27) expr -> expr NE . expr
+    (23) expr -> . expr OR expr
+    (24) expr -> . expr AND expr
+    (25) expr -> . NOT expr
+    (26) expr -> . expr EE expr
+    (27) expr -> . expr NE expr
+    (28) expr -> . expr GTE expr
+    (29) expr -> . expr LTE expr
+    (30) expr -> . expr LT expr
+    (31) expr -> . expr GT expr
+    (32) expr -> . expr - expr
+    (33) expr -> . expr + expr
+    (34) expr -> . expr % expr
+    (35) expr -> . expr / expr
+    (36) expr -> . expr * expr
+    (37) expr -> . factor
+    (38) expr -> . - factor
+    (39) factor -> . ( expr )
+    (40) factor -> . operand
+    (41) operand -> . NUMBER
+    (42) operand -> . ID
+    NOT             shift and go to state 13
+    -               shift and go to state 14
+    (               shift and go to state 8
+    NUMBER          shift and go to state 10
+    ID              shift and go to state 49
+
+    expr                           shift and go to state 62
+    factor                         shift and go to state 15
+    operand                        shift and go to state 22
+
+state 38
+
+    (28) expr -> expr GTE . expr
+    (23) expr -> . expr OR expr
+    (24) expr -> . expr AND expr
+    (25) expr -> . NOT expr
+    (26) expr -> . expr EE expr
+    (27) expr -> . expr NE expr
+    (28) expr -> . expr GTE expr
+    (29) expr -> . expr LTE expr
+    (30) expr -> . expr LT expr
+    (31) expr -> . expr GT expr
+    (32) expr -> . expr - expr
+    (33) expr -> . expr + expr
+    (34) expr -> . expr % expr
+    (35) expr -> . expr / expr
+    (36) expr -> . expr * expr
+    (37) expr -> . factor
+    (38) expr -> . - factor
+    (39) factor -> . ( expr )
+    (40) factor -> . operand
+    (41) operand -> . NUMBER
+    (42) operand -> . ID
+    NOT             shift and go to state 13
+    -               shift and go to state 14
+    (               shift and go to state 8
+    NUMBER          shift and go to state 10
+    ID              shift and go to state 49
+
+    expr                           shift and go to state 63
+    factor                         shift and go to state 15
+    operand                        shift and go to state 22
+
+state 39
+
+    (29) expr -> expr LTE . expr
+    (23) expr -> . expr OR expr
+    (24) expr -> . expr AND expr
+    (25) expr -> . NOT expr
+    (26) expr -> . expr EE expr
+    (27) expr -> . expr NE expr
+    (28) expr -> . expr GTE expr
+    (29) expr -> . expr LTE expr
+    (30) expr -> . expr LT expr
+    (31) expr -> . expr GT expr
+    (32) expr -> . expr - expr
+    (33) expr -> . expr + expr
+    (34) expr -> . expr % expr
+    (35) expr -> . expr / expr
+    (36) expr -> . expr * expr
+    (37) expr -> . factor
+    (38) expr -> . - factor
+    (39) factor -> . ( expr )
+    (40) factor -> . operand
+    (41) operand -> . NUMBER
+    (42) operand -> . ID
+    NOT             shift and go to state 13
+    -               shift and go to state 14
+    (               shift and go to state 8
+    NUMBER          shift and go to state 10
+    ID              shift and go to state 49
+
+    expr                           shift and go to state 64
+    factor                         shift and go to state 15
+    operand                        shift and go to state 22
+
+state 40
+
+    (30) expr -> expr LT . expr
+    (23) expr -> . expr OR expr
+    (24) expr -> . expr AND expr
+    (25) expr -> . NOT expr
+    (26) expr -> . expr EE expr
+    (27) expr -> . expr NE expr
+    (28) expr -> . expr GTE expr
+    (29) expr -> . expr LTE expr
+    (30) expr -> . expr LT expr
+    (31) expr -> . expr GT expr
+    (32) expr -> . expr - expr
+    (33) expr -> . expr + expr
+    (34) expr -> . expr % expr
+    (35) expr -> . expr / expr
+    (36) expr -> . expr * expr
+    (37) expr -> . factor
+    (38) expr -> . - factor
+    (39) factor -> . ( expr )
+    (40) factor -> . operand
+    (41) operand -> . NUMBER
+    (42) operand -> . ID
+    NOT             shift and go to state 13
+    -               shift and go to state 14
+    (               shift and go to state 8
+    NUMBER          shift and go to state 10
+    ID              shift and go to state 49
+
+    expr                           shift and go to state 65
+    factor                         shift and go to state 15
+    operand                        shift and go to state 22
+
+state 41
+
+    (31) expr -> expr GT . expr
+    (23) expr -> . expr OR expr
+    (24) expr -> . expr AND expr
+    (25) expr -> . NOT expr
+    (26) expr -> . expr EE expr
+    (27) expr -> . expr NE expr
+    (28) expr -> . expr GTE expr
+    (29) expr -> . expr LTE expr
+    (30) expr -> . expr LT expr
+    (31) expr -> . expr GT expr
+    (32) expr -> . expr - expr
+    (33) expr -> . expr + expr
+    (34) expr -> . expr % expr
+    (35) expr -> . expr / expr
+    (36) expr -> . expr * expr
+    (37) expr -> . factor
+    (38) expr -> . - factor
+    (39) factor -> . ( expr )
+    (40) factor -> . operand
+    (41) operand -> . NUMBER
+    (42) operand -> . ID
+    NOT             shift and go to state 13
+    -               shift and go to state 14
+    (               shift and go to state 8
+    NUMBER          shift and go to state 10
+    ID              shift and go to state 49
+
+    expr                           shift and go to state 66
+    factor                         shift and go to state 15
+    operand                        shift and go to state 22
+
+state 42
+
+    (32) expr -> expr - . expr
+    (23) expr -> . expr OR expr
+    (24) expr -> . expr AND expr
+    (25) expr -> . NOT expr
+    (26) expr -> . expr EE expr
+    (27) expr -> . expr NE expr
+    (28) expr -> . expr GTE expr
+    (29) expr -> . expr LTE expr
+    (30) expr -> . expr LT expr
+    (31) expr -> . expr GT expr
+    (32) expr -> . expr - expr
+    (33) expr -> . expr + expr
+    (34) expr -> . expr % expr
+    (35) expr -> . expr / expr
+    (36) expr -> . expr * expr
+    (37) expr -> . factor
+    (38) expr -> . - factor
+    (39) factor -> . ( expr )
+    (40) factor -> . operand
+    (41) operand -> . NUMBER
+    (42) operand -> . ID
+    NOT             shift and go to state 13
+    -               shift and go to state 14
+    (               shift and go to state 8
+    NUMBER          shift and go to state 10
+    ID              shift and go to state 49
+
+    expr                           shift and go to state 67
+    factor                         shift and go to state 15
+    operand                        shift and go to state 22
+
+state 43
+
+    (33) expr -> expr + . expr
+    (23) expr -> . expr OR expr
+    (24) expr -> . expr AND expr
+    (25) expr -> . NOT expr
+    (26) expr -> . expr EE expr
+    (27) expr -> . expr NE expr
+    (28) expr -> . expr GTE expr
+    (29) expr -> . expr LTE expr
+    (30) expr -> . expr LT expr
+    (31) expr -> . expr GT expr
+    (32) expr -> . expr - expr
+    (33) expr -> . expr + expr
+    (34) expr -> . expr % expr
+    (35) expr -> . expr / expr
+    (36) expr -> . expr * expr
+    (37) expr -> . factor
+    (38) expr -> . - factor
+    (39) factor -> . ( expr )
+    (40) factor -> . operand
+    (41) operand -> . NUMBER
+    (42) operand -> . ID
+    NOT             shift and go to state 13
+    -               shift and go to state 14
+    (               shift and go to state 8
+    NUMBER          shift and go to state 10
+    ID              shift and go to state 49
+
+    expr                           shift and go to state 68
+    factor                         shift and go to state 15
+    operand                        shift and go to state 22
+
+state 44
+
+    (34) expr -> expr % . expr
+    (23) expr -> . expr OR expr
+    (24) expr -> . expr AND expr
+    (25) expr -> . NOT expr
+    (26) expr -> . expr EE expr
+    (27) expr -> . expr NE expr
+    (28) expr -> . expr GTE expr
+    (29) expr -> . expr LTE expr
+    (30) expr -> . expr LT expr
+    (31) expr -> . expr GT expr
+    (32) expr -> . expr - expr
+    (33) expr -> . expr + expr
+    (34) expr -> . expr % expr
+    (35) expr -> . expr / expr
+    (36) expr -> . expr * expr
+    (37) expr -> . factor
+    (38) expr -> . - factor
+    (39) factor -> . ( expr )
+    (40) factor -> . operand
+    (41) operand -> . NUMBER
+    (42) operand -> . ID
+    NOT             shift and go to state 13
+    -               shift and go to state 14
+    (               shift and go to state 8
+    NUMBER          shift and go to state 10
+    ID              shift and go to state 49
+
+    expr                           shift and go to state 69
+    factor                         shift and go to state 15
+    operand                        shift and go to state 22
+
+state 45
+
+    (35) expr -> expr / . expr
+    (23) expr -> . expr OR expr
+    (24) expr -> . expr AND expr
+    (25) expr -> . NOT expr
+    (26) expr -> . expr EE expr
+    (27) expr -> . expr NE expr
+    (28) expr -> . expr GTE expr
+    (29) expr -> . expr LTE expr
+    (30) expr -> . expr LT expr
+    (31) expr -> . expr GT expr
+    (32) expr -> . expr - expr
+    (33) expr -> . expr + expr
+    (34) expr -> . expr % expr
+    (35) expr -> . expr / expr
+    (36) expr -> . expr * expr
+    (37) expr -> . factor
+    (38) expr -> . - factor
+    (39) factor -> . ( expr )
+    (40) factor -> . operand
+    (41) operand -> . NUMBER
+    (42) operand -> . ID
+    NOT             shift and go to state 13
+    -               shift and go to state 14
+    (               shift and go to state 8
+    NUMBER          shift and go to state 10
+    ID              shift and go to state 49
+
+    expr                           shift and go to state 70
+    factor                         shift and go to state 15
+    operand                        shift and go to state 22
+
+state 46
+
+    (36) expr -> expr * . expr
+    (23) expr -> . expr OR expr
+    (24) expr -> . expr AND expr
+    (25) expr -> . NOT expr
+    (26) expr -> . expr EE expr
+    (27) expr -> . expr NE expr
+    (28) expr -> . expr GTE expr
+    (29) expr -> . expr LTE expr
+    (30) expr -> . expr LT expr
+    (31) expr -> . expr GT expr
+    (32) expr -> . expr - expr
+    (33) expr -> . expr + expr
+    (34) expr -> . expr % expr
+    (35) expr -> . expr / expr
+    (36) expr -> . expr * expr
+    (37) expr -> . factor
+    (38) expr -> . - factor
+    (39) factor -> . ( expr )
+    (40) factor -> . operand
+    (41) operand -> . NUMBER
+    (42) operand -> . ID
+    NOT             shift and go to state 13
+    -               shift and go to state 14
+    (               shift and go to state 8
+    NUMBER          shift and go to state 10
+    ID              shift and go to state 49
+
+    expr                           shift and go to state 71
+    factor                         shift and go to state 15
+    operand                        shift and go to state 22
+
+state 47
+
+    (83) rem_call -> REM ( . ID SEPARATOR ID )
+    (84) rem_call -> REM ( . ID SEPARATOR NUMBER )
+    (85) rem_call -> REM ( . array_val SEPARATOR ID )
+    (86) rem_call -> REM ( . array_val SEPARATOR NUMBER )
+    (17) array_val -> . LBLOCKPAREN set RBLOCKPAREN
+    (18) array_val -> . LBLOCKPAREN RBLOCKPAREN
+    ID              shift and go to state 72
+    LBLOCKPAREN     shift and go to state 74
+
+    array_val                      shift and go to state 73
+
+state 48
+
+    (39) factor -> ( expr . )
+    (23) expr -> expr . OR expr
+    (24) expr -> expr . AND expr
+    (26) expr -> expr . EE expr
+    (27) expr -> expr . NE expr
+    (28) expr -> expr . GTE expr
+    (29) expr -> expr . LTE expr
+    (30) expr -> expr . LT expr
+    (31) expr -> expr . GT expr
+    (32) expr -> expr . - expr
+    (33) expr -> expr . + expr
+    (34) expr -> expr . % expr
+    (35) expr -> expr . / expr
+    (36) expr -> expr . * expr
+    )               shift and go to state 75
+    OR              shift and go to state 34
+    AND             shift and go to state 35
+    EE              shift and go to state 36
+    NE              shift and go to state 37
+    GTE             shift and go to state 38
+    LTE             shift and go to state 39
+    LT              shift and go to state 40
+    GT              shift and go to state 41
+    -               shift and go to state 42
+    +               shift and go to state 43
+    %               shift and go to state 44
+    /               shift and go to state 45
+    *               shift and go to state 46
+
+
+state 49
+
+    (42) operand -> ID .
+    )               reduce using rule 42 (operand -> ID .)
+    OR              reduce using rule 42 (operand -> ID .)
+    AND             reduce using rule 42 (operand -> ID .)
+    EE              reduce using rule 42 (operand -> ID .)
+    NE              reduce using rule 42 (operand -> ID .)
+    GTE             reduce using rule 42 (operand -> ID .)
+    LTE             reduce using rule 42 (operand -> ID .)
+    LT              reduce using rule 42 (operand -> ID .)
+    GT              reduce using rule 42 (operand -> ID .)
+    -               reduce using rule 42 (operand -> ID .)
+    +               reduce using rule 42 (operand -> ID .)
+    %               reduce using rule 42 (operand -> ID .)
+    /               reduce using rule 42 (operand -> ID .)
+    *               reduce using rule 42 (operand -> ID .)
+    $end            reduce using rule 42 (operand -> ID .)
+    EOL             reduce using rule 42 (operand -> ID .)
+
+
+state 50
+
+    (6) reass_stmt -> ID ASSIGN . expr EOL
+    (7) reass_stmt -> ID ASSIGN . array_val EOL
+    (8) reass_stmt -> ID ASSIGN . val EOL
+    (23) expr -> . expr OR expr
+    (24) expr -> . expr AND expr
+    (25) expr -> . NOT expr
+    (26) expr -> . expr EE expr
+    (27) expr -> . expr NE expr
+    (28) expr -> . expr GTE expr
+    (29) expr -> . expr LTE expr
+    (30) expr -> . expr LT expr
+    (31) expr -> . expr GT expr
+    (32) expr -> . expr - expr
+    (33) expr -> . expr + expr
+    (34) expr -> . expr % expr
+    (35) expr -> . expr / expr
+    (36) expr -> . expr * expr
+    (37) expr -> . factor
+    (38) expr -> . - factor
+    (17) array_val -> . LBLOCKPAREN set RBLOCKPAREN
+    (18) array_val -> . LBLOCKPAREN RBLOCKPAREN
+    (21) val -> . STRING_LITERAL
+    (22) val -> . NUMBER
+    (39) factor -> . ( expr )
+    (40) factor -> . operand
+    (41) operand -> . NUMBER
+    (42) operand -> . ID
+    NOT             shift and go to state 13
+    -               shift and go to state 14
+    LBLOCKPAREN     shift and go to state 74
+    STRING_LITERAL  shift and go to state 79
+    NUMBER          shift and go to state 80
+    (               shift and go to state 8
+    ID              shift and go to state 49
+
+    expr                           shift and go to state 76
+    array_val                      shift and go to state 77
+    val                            shift and go to state 78
+    factor                         shift and go to state 15
+    operand                        shift and go to state 22
+
+state 51
+
+    (25) expr -> NOT expr .
+    (23) expr -> expr . OR expr
+    (24) expr -> expr . AND expr
+    (26) expr -> expr . EE expr
+    (27) expr -> expr . NE expr
+    (28) expr -> expr . GTE expr
+    (29) expr -> expr . LTE expr
+    (30) expr -> expr . LT expr
+    (31) expr -> expr . GT expr
+    (32) expr -> expr . - expr
+    (33) expr -> expr . + expr
+    (34) expr -> expr . % expr
+    (35) expr -> expr . / expr
+    (36) expr -> expr . * expr
+    OR              reduce using rule 25 (expr -> NOT expr .)
+    AND             reduce using rule 25 (expr -> NOT expr .)
+    $end            reduce using rule 25 (expr -> NOT expr .)
+    )               reduce using rule 25 (expr -> NOT expr .)
+    EOL             reduce using rule 25 (expr -> NOT expr .)
+    EE              shift and go to state 36
+    NE              shift and go to state 37
+    GTE             shift and go to state 38
+    LTE             shift and go to state 39
+    LT              shift and go to state 40
+    GT              shift and go to state 41
+    -               shift and go to state 42
+    +               shift and go to state 43
+    %               shift and go to state 44
+    /               shift and go to state 45
+    *               shift and go to state 46
+
+
+state 52
+
+    (38) expr -> - factor .
+    OR              reduce using rule 38 (expr -> - factor .)
+    AND             reduce using rule 38 (expr -> - factor .)
+    EE              reduce using rule 38 (expr -> - factor .)
+    NE              reduce using rule 38 (expr -> - factor .)
+    GTE             reduce using rule 38 (expr -> - factor .)
+    LTE             reduce using rule 38 (expr -> - factor .)
+    LT              reduce using rule 38 (expr -> - factor .)
+    GT              reduce using rule 38 (expr -> - factor .)
+    -               reduce using rule 38 (expr -> - factor .)
+    +               reduce using rule 38 (expr -> - factor .)
+    %               reduce using rule 38 (expr -> - factor .)
+    /               reduce using rule 38 (expr -> - factor .)
+    *               reduce using rule 38 (expr -> - factor .)
+    $end            reduce using rule 38 (expr -> - factor .)
+    )               reduce using rule 38 (expr -> - factor .)
+    EOL             reduce using rule 38 (expr -> - factor .)
+
+
+state 53
+
+    (9) init_stmt -> ARRAY ID . ASSIGN array_val EOL
+    ASSIGN          shift and go to state 81
+
+
+state 54
+
+    (10) init_stmt -> data_type ID . ASSIGN expr EOL
+    (11) init_stmt -> data_type ID . ASSIGN val EOL
+    ASSIGN          shift and go to state 82
+
+
+state 55
+
+    (59) birf_wp_call -> birf_wp ( . params )
+    (43) params -> . params SEPARATOR param
+    (44) params -> . param
+    (45) param -> . val
+    (46) param -> . ID
+    (21) val -> . STRING_LITERAL
+    (22) val -> . NUMBER
+    ID              shift and go to state 86
+    STRING_LITERAL  shift and go to state 79
+    NUMBER          shift and go to state 87
+
+    params                         shift and go to state 83
+    param                          shift and go to state 84
+    val                            shift and go to state 85
+
+state 56
+
+    (50) birf_wop_call -> birf_wop ( . )
+    )               shift and go to state 88
+
+
+state 57
+
+    (55) len_call -> LEN ( . array_val )
+    (56) len_call -> LEN ( . ID )
+    (17) array_val -> . LBLOCKPAREN set RBLOCKPAREN
+    (18) array_val -> . LBLOCKPAREN RBLOCKPAREN
+    ID              shift and go to state 90
+    LBLOCKPAREN     shift and go to state 74
+
+    array_val                      shift and go to state 89
+
+state 58
+
+    (53) pop_call -> POP ( . array_val )
+    (54) pop_call -> POP ( . ID )
+    (17) array_val -> . LBLOCKPAREN set RBLOCKPAREN
+    (18) array_val -> . LBLOCKPAREN RBLOCKPAREN
+    ID              shift and go to state 92
+    LBLOCKPAREN     shift and go to state 74
+
+    array_val                      shift and go to state 91
+
+state 59
+
+    (23) expr -> expr OR expr .
+    (23) expr -> expr . OR expr
+    (24) expr -> expr . AND expr
+    (26) expr -> expr . EE expr
+    (27) expr -> expr . NE expr
+    (28) expr -> expr . GTE expr
+    (29) expr -> expr . LTE expr
+    (30) expr -> expr . LT expr
+    (31) expr -> expr . GT expr
+    (32) expr -> expr . - expr
+    (33) expr -> expr . + expr
+    (34) expr -> expr . % expr
+    (35) expr -> expr . / expr
+    (36) expr -> expr . * expr
+    OR              reduce using rule 23 (expr -> expr OR expr .)
+    $end            reduce using rule 23 (expr -> expr OR expr .)
+    )               reduce using rule 23 (expr -> expr OR expr .)
+    EOL             reduce using rule 23 (expr -> expr OR expr .)
+    AND             shift and go to state 35
+    EE              shift and go to state 36
+    NE              shift and go to state 37
+    GTE             shift and go to state 38
+    LTE             shift and go to state 39
+    LT              shift and go to state 40
+    GT              shift and go to state 41
+    -               shift and go to state 42
+    +               shift and go to state 43
+    %               shift and go to state 44
+    /               shift and go to state 45
+    *               shift and go to state 46
+
+
+state 60
+
+    (24) expr -> expr AND expr .
+    (23) expr -> expr . OR expr
+    (24) expr -> expr . AND expr
+    (26) expr -> expr . EE expr
+    (27) expr -> expr . NE expr
+    (28) expr -> expr . GTE expr
+    (29) expr -> expr . LTE expr
+    (30) expr -> expr . LT expr
+    (31) expr -> expr . GT expr
+    (32) expr -> expr . - expr
+    (33) expr -> expr . + expr
+    (34) expr -> expr . % expr
+    (35) expr -> expr . / expr
+    (36) expr -> expr . * expr
+    OR              reduce using rule 24 (expr -> expr AND expr .)
+    AND             reduce using rule 24 (expr -> expr AND expr .)
+    $end            reduce using rule 24 (expr -> expr AND expr .)
+    )               reduce using rule 24 (expr -> expr AND expr .)
+    EOL             reduce using rule 24 (expr -> expr AND expr .)
+    EE              shift and go to state 36
+    NE              shift and go to state 37
+    GTE             shift and go to state 38
+    LTE             shift and go to state 39
+    LT              shift and go to state 40
+    GT              shift and go to state 41
+    -               shift and go to state 42
+    +               shift and go to state 43
+    %               shift and go to state 44
+    /               shift and go to state 45
+    *               shift and go to state 46
+
+
+state 61
+
+    (26) expr -> expr EE expr .
+    (23) expr -> expr . OR expr
+    (24) expr -> expr . AND expr
+    (26) expr -> expr . EE expr
+    (27) expr -> expr . NE expr
+    (28) expr -> expr . GTE expr
+    (29) expr -> expr . LTE expr
+    (30) expr -> expr . LT expr
+    (31) expr -> expr . GT expr
+    (32) expr -> expr . - expr
+    (33) expr -> expr . + expr
+    (34) expr -> expr . % expr
+    (35) expr -> expr . / expr
+    (36) expr -> expr . * expr
+    OR              reduce using rule 26 (expr -> expr EE expr .)
+    AND             reduce using rule 26 (expr -> expr EE expr .)
+    EE              reduce using rule 26 (expr -> expr EE expr .)
+    NE              reduce using rule 26 (expr -> expr EE expr .)
+    GTE             reduce using rule 26 (expr -> expr EE expr .)
+    LTE             reduce using rule 26 (expr -> expr EE expr .)
+    LT              reduce using rule 26 (expr -> expr EE expr .)
+    GT              reduce using rule 26 (expr -> expr EE expr .)
+    $end            reduce using rule 26 (expr -> expr EE expr .)
+    )               reduce using rule 26 (expr -> expr EE expr .)
+    EOL             reduce using rule 26 (expr -> expr EE expr .)
+    -               shift and go to state 42
+    +               shift and go to state 43
+    %               shift and go to state 44
+    /               shift and go to state 45
+    *               shift and go to state 46
+
+
+state 62
+
+    (27) expr -> expr NE expr .
+    (23) expr -> expr . OR expr
+    (24) expr -> expr . AND expr
+    (26) expr -> expr . EE expr
+    (27) expr -> expr . NE expr
+    (28) expr -> expr . GTE expr
+    (29) expr -> expr . LTE expr
+    (30) expr -> expr . LT expr
+    (31) expr -> expr . GT expr
+    (32) expr -> expr . - expr
+    (33) expr -> expr . + expr
+    (34) expr -> expr . % expr
+    (35) expr -> expr . / expr
+    (36) expr -> expr . * expr
+    OR              reduce using rule 27 (expr -> expr NE expr .)
+    AND             reduce using rule 27 (expr -> expr NE expr .)
+    EE              reduce using rule 27 (expr -> expr NE expr .)
+    NE              reduce using rule 27 (expr -> expr NE expr .)
+    GTE             reduce using rule 27 (expr -> expr NE expr .)
+    LTE             reduce using rule 27 (expr -> expr NE expr .)
+    LT              reduce using rule 27 (expr -> expr NE expr .)
+    GT              reduce using rule 27 (expr -> expr NE expr .)
+    $end            reduce using rule 27 (expr -> expr NE expr .)
+    )               reduce using rule 27 (expr -> expr NE expr .)
+    EOL             reduce using rule 27 (expr -> expr NE expr .)
+    -               shift and go to state 42
+    +               shift and go to state 43
+    %               shift and go to state 44
+    /               shift and go to state 45
+    *               shift and go to state 46
+
+
+state 63
+
+    (28) expr -> expr GTE expr .
+    (23) expr -> expr . OR expr
+    (24) expr -> expr . AND expr
+    (26) expr -> expr . EE expr
+    (27) expr -> expr . NE expr
+    (28) expr -> expr . GTE expr
+    (29) expr -> expr . LTE expr
+    (30) expr -> expr . LT expr
+    (31) expr -> expr . GT expr
+    (32) expr -> expr . - expr
+    (33) expr -> expr . + expr
+    (34) expr -> expr . % expr
+    (35) expr -> expr . / expr
+    (36) expr -> expr . * expr
+    OR              reduce using rule 28 (expr -> expr GTE expr .)
+    AND             reduce using rule 28 (expr -> expr GTE expr .)
+    EE              reduce using rule 28 (expr -> expr GTE expr .)
+    NE              reduce using rule 28 (expr -> expr GTE expr .)
+    GTE             reduce using rule 28 (expr -> expr GTE expr .)
+    LTE             reduce using rule 28 (expr -> expr GTE expr .)
+    LT              reduce using rule 28 (expr -> expr GTE expr .)
+    GT              reduce using rule 28 (expr -> expr GTE expr .)
+    $end            reduce using rule 28 (expr -> expr GTE expr .)
+    )               reduce using rule 28 (expr -> expr GTE expr .)
+    EOL             reduce using rule 28 (expr -> expr GTE expr .)
+    -               shift and go to state 42
+    +               shift and go to state 43
+    %               shift and go to state 44
+    /               shift and go to state 45
+    *               shift and go to state 46
+
+
+state 64
+
+    (29) expr -> expr LTE expr .
+    (23) expr -> expr . OR expr
+    (24) expr -> expr . AND expr
+    (26) expr -> expr . EE expr
+    (27) expr -> expr . NE expr
+    (28) expr -> expr . GTE expr
+    (29) expr -> expr . LTE expr
+    (30) expr -> expr . LT expr
+    (31) expr -> expr . GT expr
+    (32) expr -> expr . - expr
+    (33) expr -> expr . + expr
+    (34) expr -> expr . % expr
+    (35) expr -> expr . / expr
+    (36) expr -> expr . * expr
+    OR              reduce using rule 29 (expr -> expr LTE expr .)
+    AND             reduce using rule 29 (expr -> expr LTE expr .)
+    EE              reduce using rule 29 (expr -> expr LTE expr .)
+    NE              reduce using rule 29 (expr -> expr LTE expr .)
+    GTE             reduce using rule 29 (expr -> expr LTE expr .)
+    LTE             reduce using rule 29 (expr -> expr LTE expr .)
+    LT              reduce using rule 29 (expr -> expr LTE expr .)
+    GT              reduce using rule 29 (expr -> expr LTE expr .)
+    $end            reduce using rule 29 (expr -> expr LTE expr .)
+    )               reduce using rule 29 (expr -> expr LTE expr .)
+    EOL             reduce using rule 29 (expr -> expr LTE expr .)
+    -               shift and go to state 42
+    +               shift and go to state 43
+    %               shift and go to state 44
+    /               shift and go to state 45
+    *               shift and go to state 46
+
+
+state 65
+
+    (30) expr -> expr LT expr .
+    (23) expr -> expr . OR expr
+    (24) expr -> expr . AND expr
+    (26) expr -> expr . EE expr
+    (27) expr -> expr . NE expr
+    (28) expr -> expr . GTE expr
+    (29) expr -> expr . LTE expr
+    (30) expr -> expr . LT expr
+    (31) expr -> expr . GT expr
+    (32) expr -> expr . - expr
+    (33) expr -> expr . + expr
+    (34) expr -> expr . % expr
+    (35) expr -> expr . / expr
+    (36) expr -> expr . * expr
+    OR              reduce using rule 30 (expr -> expr LT expr .)
+    AND             reduce using rule 30 (expr -> expr LT expr .)
+    EE              reduce using rule 30 (expr -> expr LT expr .)
+    NE              reduce using rule 30 (expr -> expr LT expr .)
+    GTE             reduce using rule 30 (expr -> expr LT expr .)
+    LTE             reduce using rule 30 (expr -> expr LT expr .)
+    LT              reduce using rule 30 (expr -> expr LT expr .)
+    GT              reduce using rule 30 (expr -> expr LT expr .)
+    $end            reduce using rule 30 (expr -> expr LT expr .)
+    )               reduce using rule 30 (expr -> expr LT expr .)
+    EOL             reduce using rule 30 (expr -> expr LT expr .)
+    -               shift and go to state 42
+    +               shift and go to state 43
+    %               shift and go to state 44
+    /               shift and go to state 45
+    *               shift and go to state 46
+
+
+state 66
+
+    (31) expr -> expr GT expr .
+    (23) expr -> expr . OR expr
+    (24) expr -> expr . AND expr
+    (26) expr -> expr . EE expr
+    (27) expr -> expr . NE expr
+    (28) expr -> expr . GTE expr
+    (29) expr -> expr . LTE expr
+    (30) expr -> expr . LT expr
+    (31) expr -> expr . GT expr
+    (32) expr -> expr . - expr
+    (33) expr -> expr . + expr
+    (34) expr -> expr . % expr
+    (35) expr -> expr . / expr
+    (36) expr -> expr . * expr
+    OR              reduce using rule 31 (expr -> expr GT expr .)
+    AND             reduce using rule 31 (expr -> expr GT expr .)
+    EE              reduce using rule 31 (expr -> expr GT expr .)
+    NE              reduce using rule 31 (expr -> expr GT expr .)
+    GTE             reduce using rule 31 (expr -> expr GT expr .)
+    LTE             reduce using rule 31 (expr -> expr GT expr .)
+    LT              reduce using rule 31 (expr -> expr GT expr .)
+    GT              reduce using rule 31 (expr -> expr GT expr .)
+    $end            reduce using rule 31 (expr -> expr GT expr .)
+    )               reduce using rule 31 (expr -> expr GT expr .)
+    EOL             reduce using rule 31 (expr -> expr GT expr .)
+    -               shift and go to state 42
+    +               shift and go to state 43
+    %               shift and go to state 44
+    /               shift and go to state 45
+    *               shift and go to state 46
+
+
+state 67
+
+    (32) expr -> expr - expr .
+    (23) expr -> expr . OR expr
+    (24) expr -> expr . AND expr
+    (26) expr -> expr . EE expr
+    (27) expr -> expr . NE expr
+    (28) expr -> expr . GTE expr
+    (29) expr -> expr . LTE expr
+    (30) expr -> expr . LT expr
+    (31) expr -> expr . GT expr
+    (32) expr -> expr . - expr
+    (33) expr -> expr . + expr
+    (34) expr -> expr . % expr
+    (35) expr -> expr . / expr
+    (36) expr -> expr . * expr
+    OR              reduce using rule 32 (expr -> expr - expr .)
+    AND             reduce using rule 32 (expr -> expr - expr .)
+    EE              reduce using rule 32 (expr -> expr - expr .)
+    NE              reduce using rule 32 (expr -> expr - expr .)
+    GTE             reduce using rule 32 (expr -> expr - expr .)
+    LTE             reduce using rule 32 (expr -> expr - expr .)
+    LT              reduce using rule 32 (expr -> expr - expr .)
+    GT              reduce using rule 32 (expr -> expr - expr .)
+    -               reduce using rule 32 (expr -> expr - expr .)
+    +               reduce using rule 32 (expr -> expr - expr .)
+    $end            reduce using rule 32 (expr -> expr - expr .)
+    )               reduce using rule 32 (expr -> expr - expr .)
+    EOL             reduce using rule 32 (expr -> expr - expr .)
+    %               shift and go to state 44
+    /               shift and go to state 45
+    *               shift and go to state 46
+
+
+state 68
+
+    (33) expr -> expr + expr .
+    (23) expr -> expr . OR expr
+    (24) expr -> expr . AND expr
+    (26) expr -> expr . EE expr
+    (27) expr -> expr . NE expr
+    (28) expr -> expr . GTE expr
+    (29) expr -> expr . LTE expr
+    (30) expr -> expr . LT expr
+    (31) expr -> expr . GT expr
+    (32) expr -> expr . - expr
+    (33) expr -> expr . + expr
+    (34) expr -> expr . % expr
+    (35) expr -> expr . / expr
+    (36) expr -> expr . * expr
+    OR              reduce using rule 33 (expr -> expr + expr .)
+    AND             reduce using rule 33 (expr -> expr + expr .)
+    EE              reduce using rule 33 (expr -> expr + expr .)
+    NE              reduce using rule 33 (expr -> expr + expr .)
+    GTE             reduce using rule 33 (expr -> expr + expr .)
+    LTE             reduce using rule 33 (expr -> expr + expr .)
+    LT              reduce using rule 33 (expr -> expr + expr .)
+    GT              reduce using rule 33 (expr -> expr + expr .)
+    -               reduce using rule 33 (expr -> expr + expr .)
+    +               reduce using rule 33 (expr -> expr + expr .)
+    $end            reduce using rule 33 (expr -> expr + expr .)
+    )               reduce using rule 33 (expr -> expr + expr .)
+    EOL             reduce using rule 33 (expr -> expr + expr .)
+    %               shift and go to state 44
+    /               shift and go to state 45
+    *               shift and go to state 46
+
+
+state 69
+
+    (34) expr -> expr % expr .
+    (23) expr -> expr . OR expr
+    (24) expr -> expr . AND expr
+    (26) expr -> expr . EE expr
+    (27) expr -> expr . NE expr
+    (28) expr -> expr . GTE expr
+    (29) expr -> expr . LTE expr
+    (30) expr -> expr . LT expr
+    (31) expr -> expr . GT expr
+    (32) expr -> expr . - expr
+    (33) expr -> expr . + expr
+    (34) expr -> expr . % expr
+    (35) expr -> expr . / expr
+    (36) expr -> expr . * expr
+    OR              reduce using rule 34 (expr -> expr % expr .)
+    AND             reduce using rule 34 (expr -> expr % expr .)
+    EE              reduce using rule 34 (expr -> expr % expr .)
+    NE              reduce using rule 34 (expr -> expr % expr .)
+    GTE             reduce using rule 34 (expr -> expr % expr .)
+    LTE             reduce using rule 34 (expr -> expr % expr .)
+    LT              reduce using rule 34 (expr -> expr % expr .)
+    GT              reduce using rule 34 (expr -> expr % expr .)
+    -               reduce using rule 34 (expr -> expr % expr .)
+    +               reduce using rule 34 (expr -> expr % expr .)
+    %               reduce using rule 34 (expr -> expr % expr .)
+    /               reduce using rule 34 (expr -> expr % expr .)
+    *               reduce using rule 34 (expr -> expr % expr .)
+    $end            reduce using rule 34 (expr -> expr % expr .)
+    )               reduce using rule 34 (expr -> expr % expr .)
+    EOL             reduce using rule 34 (expr -> expr % expr .)
+
+
+state 70
+
+    (35) expr -> expr / expr .
+    (23) expr -> expr . OR expr
+    (24) expr -> expr . AND expr
+    (26) expr -> expr . EE expr
+    (27) expr -> expr . NE expr
+    (28) expr -> expr . GTE expr
+    (29) expr -> expr . LTE expr
+    (30) expr -> expr . LT expr
+    (31) expr -> expr . GT expr
+    (32) expr -> expr . - expr
+    (33) expr -> expr . + expr
+    (34) expr -> expr . % expr
+    (35) expr -> expr . / expr
+    (36) expr -> expr . * expr
+    OR              reduce using rule 35 (expr -> expr / expr .)
+    AND             reduce using rule 35 (expr -> expr / expr .)
+    EE              reduce using rule 35 (expr -> expr / expr .)
+    NE              reduce using rule 35 (expr -> expr / expr .)
+    GTE             reduce using rule 35 (expr -> expr / expr .)
+    LTE             reduce using rule 35 (expr -> expr / expr .)
+    LT              reduce using rule 35 (expr -> expr / expr .)
+    GT              reduce using rule 35 (expr -> expr / expr .)
+    -               reduce using rule 35 (expr -> expr / expr .)
+    +               reduce using rule 35 (expr -> expr / expr .)
+    %               reduce using rule 35 (expr -> expr / expr .)
+    /               reduce using rule 35 (expr -> expr / expr .)
+    *               reduce using rule 35 (expr -> expr / expr .)
+    $end            reduce using rule 35 (expr -> expr / expr .)
+    )               reduce using rule 35 (expr -> expr / expr .)
+    EOL             reduce using rule 35 (expr -> expr / expr .)
+
+
+state 71
+
+    (36) expr -> expr * expr .
+    (23) expr -> expr . OR expr
+    (24) expr -> expr . AND expr
+    (26) expr -> expr . EE expr
+    (27) expr -> expr . NE expr
+    (28) expr -> expr . GTE expr
+    (29) expr -> expr . LTE expr
+    (30) expr -> expr . LT expr
+    (31) expr -> expr . GT expr
+    (32) expr -> expr . - expr
+    (33) expr -> expr . + expr
+    (34) expr -> expr . % expr
+    (35) expr -> expr . / expr
+    (36) expr -> expr . * expr
+    OR              reduce using rule 36 (expr -> expr * expr .)
+    AND             reduce using rule 36 (expr -> expr * expr .)
+    EE              reduce using rule 36 (expr -> expr * expr .)
+    NE              reduce using rule 36 (expr -> expr * expr .)
+    GTE             reduce using rule 36 (expr -> expr * expr .)
+    LTE             reduce using rule 36 (expr -> expr * expr .)
+    LT              reduce using rule 36 (expr -> expr * expr .)
+    GT              reduce using rule 36 (expr -> expr * expr .)
+    -               reduce using rule 36 (expr -> expr * expr .)
+    +               reduce using rule 36 (expr -> expr * expr .)
+    %               reduce using rule 36 (expr -> expr * expr .)
+    /               reduce using rule 36 (expr -> expr * expr .)
+    *               reduce using rule 36 (expr -> expr * expr .)
+    $end            reduce using rule 36 (expr -> expr * expr .)
+    )               reduce using rule 36 (expr -> expr * expr .)
+    EOL             reduce using rule 36 (expr -> expr * expr .)
+
+
+state 72
+
+    (83) rem_call -> REM ( ID . SEPARATOR ID )
+    (84) rem_call -> REM ( ID . SEPARATOR NUMBER )
+    SEPARATOR       shift and go to state 93
+
+
+state 73
+
+    (85) rem_call -> REM ( array_val . SEPARATOR ID )
+    (86) rem_call -> REM ( array_val . SEPARATOR NUMBER )
+    SEPARATOR       shift and go to state 94
+
+
+state 74
+
+    (17) array_val -> LBLOCKPAREN . set RBLOCKPAREN
+    (18) array_val -> LBLOCKPAREN . RBLOCKPAREN
+    (19) set -> . set SEPARATOR val
+    (20) set -> . val
+    (21) val -> . STRING_LITERAL
+    (22) val -> . NUMBER
+    RBLOCKPAREN     shift and go to state 96
+    STRING_LITERAL  shift and go to state 79
+    NUMBER          shift and go to state 87
+
+    set                            shift and go to state 95
+    val                            shift and go to state 97
+
+state 75
+
+    (39) factor -> ( expr ) .
+    OR              reduce using rule 39 (factor -> ( expr ) .)
+    AND             reduce using rule 39 (factor -> ( expr ) .)
+    EE              reduce using rule 39 (factor -> ( expr ) .)
+    NE              reduce using rule 39 (factor -> ( expr ) .)
+    GTE             reduce using rule 39 (factor -> ( expr ) .)
+    LTE             reduce using rule 39 (factor -> ( expr ) .)
+    LT              reduce using rule 39 (factor -> ( expr ) .)
+    GT              reduce using rule 39 (factor -> ( expr ) .)
+    -               reduce using rule 39 (factor -> ( expr ) .)
+    +               reduce using rule 39 (factor -> ( expr ) .)
+    %               reduce using rule 39 (factor -> ( expr ) .)
+    /               reduce using rule 39 (factor -> ( expr ) .)
+    *               reduce using rule 39 (factor -> ( expr ) .)
+    $end            reduce using rule 39 (factor -> ( expr ) .)
+    )               reduce using rule 39 (factor -> ( expr ) .)
+    EOL             reduce using rule 39 (factor -> ( expr ) .)
+
+
+state 76
+
+    (6) reass_stmt -> ID ASSIGN expr . EOL
+    (23) expr -> expr . OR expr
+    (24) expr -> expr . AND expr
+    (26) expr -> expr . EE expr
+    (27) expr -> expr . NE expr
+    (28) expr -> expr . GTE expr
+    (29) expr -> expr . LTE expr
+    (30) expr -> expr . LT expr
+    (31) expr -> expr . GT expr
+    (32) expr -> expr . - expr
+    (33) expr -> expr . + expr
+    (34) expr -> expr . % expr
+    (35) expr -> expr . / expr
+    (36) expr -> expr . * expr
+    EOL             shift and go to state 98
+    OR              shift and go to state 34
+    AND             shift and go to state 35
+    EE              shift and go to state 36
+    NE              shift and go to state 37
+    GTE             shift and go to state 38
+    LTE             shift and go to state 39
+    LT              shift and go to state 40
+    GT              shift and go to state 41
+    -               shift and go to state 42
+    +               shift and go to state 43
+    %               shift and go to state 44
+    /               shift and go to state 45
+    *               shift and go to state 46
+
+
+state 77
+
+    (7) reass_stmt -> ID ASSIGN array_val . EOL
+    EOL             shift and go to state 99
+
+
+state 78
+
+    (8) reass_stmt -> ID ASSIGN val . EOL
+    EOL             shift and go to state 100
+
+
+state 79
+
+    (21) val -> STRING_LITERAL .
+    EOL             reduce using rule 21 (val -> STRING_LITERAL .)
+    )               reduce using rule 21 (val -> STRING_LITERAL .)
+    SEPARATOR       reduce using rule 21 (val -> STRING_LITERAL .)
+    RBLOCKPAREN     reduce using rule 21 (val -> STRING_LITERAL .)
+
+
+state 80
+
+    (22) val -> NUMBER .
+    (41) operand -> NUMBER .
+  ! reduce/reduce conflict for EOL resolved using rule 22 (val -> NUMBER .)
+    EOL             reduce using rule 22 (val -> NUMBER .)
+    OR              reduce using rule 41 (operand -> NUMBER .)
+    AND             reduce using rule 41 (operand -> NUMBER .)
+    EE              reduce using rule 41 (operand -> NUMBER .)
+    NE              reduce using rule 41 (operand -> NUMBER .)
+    GTE             reduce using rule 41 (operand -> NUMBER .)
+    LTE             reduce using rule 41 (operand -> NUMBER .)
+    LT              reduce using rule 41 (operand -> NUMBER .)
+    GT              reduce using rule 41 (operand -> NUMBER .)
+    -               reduce using rule 41 (operand -> NUMBER .)
+    +               reduce using rule 41 (operand -> NUMBER .)
+    %               reduce using rule 41 (operand -> NUMBER .)
+    /               reduce using rule 41 (operand -> NUMBER .)
+    *               reduce using rule 41 (operand -> NUMBER .)
+
+
+state 81
+
+    (9) init_stmt -> ARRAY ID ASSIGN . array_val EOL
+    (17) array_val -> . LBLOCKPAREN set RBLOCKPAREN
+    (18) array_val -> . LBLOCKPAREN RBLOCKPAREN
+    LBLOCKPAREN     shift and go to state 74
+
+    array_val                      shift and go to state 101
+
+state 82
+
+    (10) init_stmt -> data_type ID ASSIGN . expr EOL
+    (11) init_stmt -> data_type ID ASSIGN . val EOL
+    (23) expr -> . expr OR expr
+    (24) expr -> . expr AND expr
+    (25) expr -> . NOT expr
+    (26) expr -> . expr EE expr
+    (27) expr -> . expr NE expr
+    (28) expr -> . expr GTE expr
+    (29) expr -> . expr LTE expr
+    (30) expr -> . expr LT expr
+    (31) expr -> . expr GT expr
+    (32) expr -> . expr - expr
+    (33) expr -> . expr + expr
+    (34) expr -> . expr % expr
+    (35) expr -> . expr / expr
+    (36) expr -> . expr * expr
+    (37) expr -> . factor
+    (38) expr -> . - factor
+    (21) val -> . STRING_LITERAL
+    (22) val -> . NUMBER
+    (39) factor -> . ( expr )
+    (40) factor -> . operand
+    (41) operand -> . NUMBER
+    (42) operand -> . ID
+    NOT             shift and go to state 13
+    -               shift and go to state 14
+    STRING_LITERAL  shift and go to state 79
+    NUMBER          shift and go to state 80
+    (               shift and go to state 8
+    ID              shift and go to state 49
+
+    expr                           shift and go to state 102
+    val                            shift and go to state 103
+    factor                         shift and go to state 15
+    operand                        shift and go to state 22
+
+state 83
+
+    (59) birf_wp_call -> birf_wp ( params . )
+    (43) params -> params . SEPARATOR param
+    )               shift and go to state 104
+    SEPARATOR       shift and go to state 105
+
+
+state 84
+
+    (44) params -> param .
+    )               reduce using rule 44 (params -> param .)
+    SEPARATOR       reduce using rule 44 (params -> param .)
+
+
+state 85
+
+    (45) param -> val .
+    )               reduce using rule 45 (param -> val .)
+    SEPARATOR       reduce using rule 45 (param -> val .)
+
+
+state 86
+
+    (46) param -> ID .
+    )               reduce using rule 46 (param -> ID .)
+    SEPARATOR       reduce using rule 46 (param -> ID .)
+
+
+state 87
+
+    (22) val -> NUMBER .
+    )               reduce using rule 22 (val -> NUMBER .)
+    SEPARATOR       reduce using rule 22 (val -> NUMBER .)
+    RBLOCKPAREN     reduce using rule 22 (val -> NUMBER .)
+
+
+state 88
+
+    (50) birf_wop_call -> birf_wop ( ) .
+    $end            reduce using rule 50 (birf_wop_call -> birf_wop ( ) .)
+
+
+state 89
+
+    (55) len_call -> LEN ( array_val . )
+    )               shift and go to state 106
+
+
+state 90
+
+    (56) len_call -> LEN ( ID . )
+    )               shift and go to state 107
+
+
+state 91
+
+    (53) pop_call -> POP ( array_val . )
+    )               shift and go to state 108
+
+
+state 92
+
+    (54) pop_call -> POP ( ID . )
+    )               shift and go to state 109
+
+
+state 93
+
+    (83) rem_call -> REM ( ID SEPARATOR . ID )
+    (84) rem_call -> REM ( ID SEPARATOR . NUMBER )
+    ID              shift and go to state 110
+    NUMBER          shift and go to state 111
+
+
+state 94
+
+    (85) rem_call -> REM ( array_val SEPARATOR . ID )
+    (86) rem_call -> REM ( array_val SEPARATOR . NUMBER )
+    ID              shift and go to state 112
+    NUMBER          shift and go to state 113
+
+
+state 95
+
+    (17) array_val -> LBLOCKPAREN set . RBLOCKPAREN
+    (19) set -> set . SEPARATOR val
+    RBLOCKPAREN     shift and go to state 114
+    SEPARATOR       shift and go to state 115
+
+
+state 96
+
+    (18) array_val -> LBLOCKPAREN RBLOCKPAREN .
+    SEPARATOR       reduce using rule 18 (array_val -> LBLOCKPAREN RBLOCKPAREN .)
+    EOL             reduce using rule 18 (array_val -> LBLOCKPAREN RBLOCKPAREN .)
+    )               reduce using rule 18 (array_val -> LBLOCKPAREN RBLOCKPAREN .)
+
+
+state 97
+
+    (20) set -> val .
+    RBLOCKPAREN     reduce using rule 20 (set -> val .)
+    SEPARATOR       reduce using rule 20 (set -> val .)
+
+
+state 98
+
+    (6) reass_stmt -> ID ASSIGN expr EOL .
+    $end            reduce using rule 6 (reass_stmt -> ID ASSIGN expr EOL .)
+
+
+state 99
+
+    (7) reass_stmt -> ID ASSIGN array_val EOL .
+    $end            reduce using rule 7 (reass_stmt -> ID ASSIGN array_val EOL .)
+
+
+state 100
+
+    (8) reass_stmt -> ID ASSIGN val EOL .
+    $end            reduce using rule 8 (reass_stmt -> ID ASSIGN val EOL .)
+
+
+state 101
+
+    (9) init_stmt -> ARRAY ID ASSIGN array_val . EOL
+    EOL             shift and go to state 116
+
+
+state 102
+
+    (10) init_stmt -> data_type ID ASSIGN expr . EOL
+    (23) expr -> expr . OR expr
+    (24) expr -> expr . AND expr
+    (26) expr -> expr . EE expr
+    (27) expr -> expr . NE expr
+    (28) expr -> expr . GTE expr
+    (29) expr -> expr . LTE expr
+    (30) expr -> expr . LT expr
+    (31) expr -> expr . GT expr
+    (32) expr -> expr . - expr
+    (33) expr -> expr . + expr
+    (34) expr -> expr . % expr
+    (35) expr -> expr . / expr
+    (36) expr -> expr . * expr
+    EOL             shift and go to state 117
+    OR              shift and go to state 34
+    AND             shift and go to state 35
+    EE              shift and go to state 36
+    NE              shift and go to state 37
+    GTE             shift and go to state 38
+    LTE             shift and go to state 39
+    LT              shift and go to state 40
+    GT              shift and go to state 41
+    -               shift and go to state 42
+    +               shift and go to state 43
+    %               shift and go to state 44
+    /               shift and go to state 45
+    *               shift and go to state 46
+
+
+state 103
+
+    (11) init_stmt -> data_type ID ASSIGN val . EOL
+    EOL             shift and go to state 118
+
+
+state 104
+
+    (59) birf_wp_call -> birf_wp ( params ) .
+    $end            reduce using rule 59 (birf_wp_call -> birf_wp ( params ) .)
+
+
+state 105
+
+    (43) params -> params SEPARATOR . param
+    (45) param -> . val
+    (46) param -> . ID
+    (21) val -> . STRING_LITERAL
+    (22) val -> . NUMBER
+    ID              shift and go to state 86
+    STRING_LITERAL  shift and go to state 79
+    NUMBER          shift and go to state 87
+
+    param                          shift and go to state 119
+    val                            shift and go to state 85
+
+state 106
+
+    (55) len_call -> LEN ( array_val ) .
+    $end            reduce using rule 55 (len_call -> LEN ( array_val ) .)
+
+
+state 107
+
+    (56) len_call -> LEN ( ID ) .
+    $end            reduce using rule 56 (len_call -> LEN ( ID ) .)
+
+
+state 108
+
+    (53) pop_call -> POP ( array_val ) .
+    $end            reduce using rule 53 (pop_call -> POP ( array_val ) .)
+
+
+state 109
+
+    (54) pop_call -> POP ( ID ) .
+    $end            reduce using rule 54 (pop_call -> POP ( ID ) .)
+
+
+state 110
+
+    (83) rem_call -> REM ( ID SEPARATOR ID . )
+    )               shift and go to state 120
+
+
+state 111
+
+    (84) rem_call -> REM ( ID SEPARATOR NUMBER . )
+    )               shift and go to state 121
+
+
+state 112
+
+    (85) rem_call -> REM ( array_val SEPARATOR ID . )
+    )               shift and go to state 122
+
+
+state 113
+
+    (86) rem_call -> REM ( array_val SEPARATOR NUMBER . )
+    )               shift and go to state 123
+
+
+state 114
+
+    (17) array_val -> LBLOCKPAREN set RBLOCKPAREN .
+    SEPARATOR       reduce using rule 17 (array_val -> LBLOCKPAREN set RBLOCKPAREN .)
+    EOL             reduce using rule 17 (array_val -> LBLOCKPAREN set RBLOCKPAREN .)
+    )               reduce using rule 17 (array_val -> LBLOCKPAREN set RBLOCKPAREN .)
+
+
+state 115
+
+    (19) set -> set SEPARATOR . val
+    (21) val -> . STRING_LITERAL
+    (22) val -> . NUMBER
+    STRING_LITERAL  shift and go to state 79
+    NUMBER          shift and go to state 87
+
+    val                            shift and go to state 124
+
+state 116
+
+    (9) init_stmt -> ARRAY ID ASSIGN array_val EOL .
+    $end            reduce using rule 9 (init_stmt -> ARRAY ID ASSIGN array_val EOL .)
+
+
+state 117
+
+    (10) init_stmt -> data_type ID ASSIGN expr EOL .
+    $end            reduce using rule 10 (init_stmt -> data_type ID ASSIGN expr EOL .)
+
+
+state 118
+
+    (11) init_stmt -> data_type ID ASSIGN val EOL .
+    $end            reduce using rule 11 (init_stmt -> data_type ID ASSIGN val EOL .)
+
+
+state 119
+
+    (43) params -> params SEPARATOR param .
+    )               reduce using rule 43 (params -> params SEPARATOR param .)
+    SEPARATOR       reduce using rule 43 (params -> params SEPARATOR param .)
+
+
+state 120
+
+    (83) rem_call -> REM ( ID SEPARATOR ID ) .
+    $end            reduce using rule 83 (rem_call -> REM ( ID SEPARATOR ID ) .)
+
+
+state 121
+
+    (84) rem_call -> REM ( ID SEPARATOR NUMBER ) .
+    $end            reduce using rule 84 (rem_call -> REM ( ID SEPARATOR NUMBER ) .)
+
+
+state 122
+
+    (85) rem_call -> REM ( array_val SEPARATOR ID ) .
+    $end            reduce using rule 85 (rem_call -> REM ( array_val SEPARATOR ID ) .)
+
+
+state 123
+
+    (86) rem_call -> REM ( array_val SEPARATOR NUMBER ) .
+    $end            reduce using rule 86 (rem_call -> REM ( array_val SEPARATOR NUMBER ) .)
+
+
+state 124
+
+    (19) set -> set SEPARATOR val .
+    RBLOCKPAREN     reduce using rule 19 (set -> set SEPARATOR val .)
+    SEPARATOR       reduce using rule 19 (set -> set SEPARATOR val .)
+
+
+Conflicts:
+
+shift/reduce conflict for ID in state 16 resolved as shift
+reduce/reduce conflict in state 80 resolved using rule val -> NUMBER
+rejected rule (operand -> NUMBER) in state 80

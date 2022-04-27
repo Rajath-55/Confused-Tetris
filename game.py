@@ -4,455 +4,491 @@ from collections import defaultdict
 
 from pieces import *
 
-# all global variables needed 
+# all global variables needed
 PLAY_AREA_HEIGHT = 20
 PLAY_AREA_WIDTH = 10
 PLAYER_NAME = ""
-GAME_DIFFICULTY = "H"
+GAME_DIFFICULTY = "EASY"
 SPEED_TIME_INTERVAL = 1
-MODE = "N"
+MODE = "NORMAL"
+START_LINE = 4
+NEXT_PIECE_AREA_WIDTH = 4
+NEXT_PIECE_AREA_HEIGHT = 5
+STATS_AREA_WIDTH = 7
+STATS_AREA_HEIGHT = 20
+STATS_PIECES = (T_Piece, J_Piece, Z_Piece, Square, S_Piece, L_Piece, LongBar)
+HELP_AREA_HEIGHT = 3
+SCORE_AREA_WIDTH = 4
+SCORE_AREA_HEIGHT = 8
+INITIAL_TIME_INTERVAL = 1
+stack = {
+    "positions": dict(),
+    "previousPositions": None
+}
 
 # main function -> called by the main function of our language?? Not sure
+
+
 def main(stdscr):
-	"""
-	Main function which controls Tetris game logic.
-	param stdscr: standard curses screen; will be supplied by wrapper function
-	"""	
-	# setup_main_window(stdscr)
-	play_window = get_board(stdscr)
-	height, width = stdscr.getmaxyx()
+    """
+    Main function which controls Tetris game logic.
+    param stdscr: standard curses screen; will be supplied by wrapper function
+    """
+    global stack
+    # setupMainWindow(stdscr)
+    play_window = getBoard(stdscr)
+    height, width = stdscr.getmaxyx()
 
-	# play_window = setup_play_window(width)
-	stats = setup_statistics(width)
-	next_piece_window = setup_next_piece_window(width)
-	time_interval, score = setup_score(width)
-	setup_help(width)
+    # play_window = setupPlayWindow(width)
+    stats = setupStatistics(width)
+    next_piece_window = setupNextPieceWindow(width)
+    time_interval, score = setupScore(width)
+    setupHelp(width)
 
-	block = get_next_tetromino()()
-	stats.send(block)
-	next_piece = get_next_tetromino()
+    block = getNextTetromino()()
+    stats.send(block)
+    next_piece = getNextTetromino()
 
-	draw_next_piece(next_piece_window, next_piece)
-	draw_piece(play_window, block)
+    drawNextPiece(next_piece_window, next_piece)
+    drawPiece(play_window, block)
 
-	stack = {
-		"positions": dict(),
-		"previous_positions": None
-	}
+    timer = time()
 
-	timer = time()
+    while True:
+        # positions after left/right movement or rotation
+        candidate_positions = []
+        # positions after falling down (by pressing down key or due to completed interval)
+        advanced_positions = []
 
-	while True:
-		# positions after left/right movement or rotation
-		candidate_positions = None
-		# positions after falling down (by pressing down key or due to completed interval)
-		advanced_positions = None
+        # this method is non-blocking (set in setupMainWindow)
+        c = getChar(stdscr)
 
-		# this method is non-blocking (set in setup_main_window)
-		c = stdscr.getch()
+        if c == curses.KEY_RIGHT:
+            candidate_positions = moveRight(block)
+        elif c == curses.KEY_LEFT:
+            candidate_positions = moveLeft(block)
+        elif c == curses.KEY_DOWN:
+            advanced_positions = advance(block)
+        elif c == ord(' '):
+            hardDrop(block, play_window)
+        elif c == ord('a'):
+            candidate_positions = rotateRight(block)
+        elif c == ord('d'):
+            candidate_positions = rotateLeft(block)
+        elif c == ord('q'):
+            break
 
-		if c == curses.KEY_RIGHT:
-			candidate_positions = block.move_right()
-		elif c == curses.KEY_LEFT:
-			candidate_positions = block.move_left()
-		elif c == curses.KEY_DOWN:
-			advanced_positions = block.advance()
-		elif c == ord(' '):
-			hard_drop(block, stack, play_window)
-		elif c == ord('a'):
-			candidate_positions = block.rotate_clockwise()
-		elif c == ord('d'):
-			candidate_positions = block.rotate_anti_clockwise()
-		elif c == ord('q'):
-			break
+        if time() - timer >= time_interval:
+        # interval is completed, setup next cycle
+            for i in range(SPEED_TIME_INTERVAL):
+                advanced_positions = block.advance()
+                if advanced_positions:
+                    if isInsideStack(advanced_positions):
+                        break
+                    else:
+                        block.acceptMove()
+                    reDrawPiece(play_window, block)
+            # advanced_positions = block.advance()
+            # set_speed(block, stack, play_window)
+            timer = time()
 
-		if time() - timer >= time_interval:
-			# interval is completed, setup next cycle
-			for i in range(SPEED_TIME_INTERVAL):
-				advanced_positions = block.advance()
-				if advanced_positions:
-					if is_inside_stack(advanced_positions, stack):
-						break
-					else:
-						block.accept_move()
-					re_draw_piece(play_window, block)
-			# advanced_positions = block.advance()
-			# set_speed(block, stack, play_window)
-			timer = time()
+        if candidate_positions:
+            if validatePositions(candidate_positions):
+                block.acceptMove()
+                reDrawPiece(play_window, block)
+            else:
+                block.rejectMove()
 
-		if candidate_positions:
-			if validate_positions(candidate_positions, stack):
-				block.accept_move()
-				re_draw_piece(play_window, block)
-			else:
-				block.reject_move()
+        if advanced_positions:
+            if isInsideStack(advanced_positions):
+                affected_lines = increaseStack(block)
 
-		if advanced_positions:
-			if is_inside_stack(advanced_positions, stack):
-				affected_lines = increase_stack(block, stack)
+                if 1 in affected_lines:
+                    # game over
+                    endAnimation(play_window)
+                    break
 
-				if 1 in affected_lines:
-					# game over
-					end_animation(play_window)
-					break
+                cleared_lines = checkClearedLines(affected_lines)
 
-				cleared_lines = check_cleared_lines(stack, affected_lines)
+                if cleared_lines:
+                    clearLineAnimation(play_window, cleared_lines)
+                    clearLines(cleared_lines)
+                    time_interval = score.send(len(cleared_lines))
 
-				if cleared_lines:
-					clear_line_animation(play_window, cleared_lines)
-					clear_lines(cleared_lines, stack)
-					time_interval = score.send(len(cleared_lines))
+                block = next_piece()
+                stats.send(block)
+                next_piece = getNextTetromino()
+                drawNextPiece(next_piece_window, next_piece)
 
-				block = next_piece()
-				stats.send(block)
-				next_piece = get_next_tetromino()
-				draw_next_piece(next_piece_window, next_piece)
+                drawStack(play_window)
+            else:
+                block.acceptMove()
 
-				draw_stack(play_window, stack)
-			else:
-				block.accept_move()
-
-			re_draw_piece(play_window, block)
+            reDrawPiece(play_window, block)
 
 
 """
 ===================Drawing functions===================
 """
 
-def hard_drop(block, stack, play_window):
-	while True:
-		advanced_positions = block.advance()
-		if advanced_positions:
-			if is_inside_stack(advanced_positions, stack):
-				break
-			else:
-				block.accept_move()
-			re_draw_piece(play_window, block)
-
-# def set_speed(block, stack, play_window):
-# 	for i in range(SPEED_TIME_INTERVAL):
-# 		advanced_positions = block.advance()
-# 		if advanced_positions:
-# 			if is_inside_stack(advanced_positions, stack):
-# 				break
-# 			else:
-# 				block.accept_move()
-# 			re_draw_piece(play_window, block)
+# Input functions
 
 
-def setup_main_window(window):
-	window.keypad(True)
-	window.nodelay(True)
-	window.refresh()
-	init_colors()
-	title = "Command Line Tetris"
-	height, width = window.getmaxyx()
-	window.addstr(2, width // 2 - len(title) // 2, title)
-
-	# no cursor
-	curses.curs_set(0)
-
-START_LINE = 4
+def playHW():
+    global PLAY_AREA_HEIGHT
+    global PLAY_AREA_WIDTH
+    print("Enter height and width: ", end="")
+    PLAY_AREA_HEIGHT, PLAY_AREA_WIDTH = map(int, input().strip().split())
 
 
-def setup_play_window(console_width):
-	# height and width of the new window + 2 to account for the borders
-	play_window = curses.newwin(
-		PLAY_AREA_HEIGHT + 2, 2 * PLAY_AREA_WIDTH + 2, START_LINE, console_width // 2 - PLAY_AREA_WIDTH
-	)
-	play_window.border()
+def setGameDifficulty():
+    global GAME_DIFFICULTY
+    global SPEED_TIME_INTERVAL
+    print("Enter the difficulty level for the game.\nEASY -> Easy\nMEDIUM -> Medium\nHARD -> Hard\n")
+    GAME_DIFFICULTY = str(input())
 
-	return play_window
-
-def get_board(window):
-	setup_main_window(window)
-	height, width = window.getmaxyx()
-	return setup_play_window(width)
+    if GAME_DIFFICULTY == "MEDIUM":
+        SPEED_TIME_INTERVAL = 2
+    elif GAME_DIFFICULTY == "HARD":
+        SPEED_TIME_INTERVAL = 4
 
 
-
-STATS_AREA_WIDTH = 7
-STATS_AREA_HEIGHT = 20
-STATS_PIECES = (T_Piece, J_Piece, Z_Piece, Square, S_Piece, L_Piece, LongBar)
-
-
-def setup_statistics(console_width):
-	statistics_window = curses.newwin(
-		STATS_AREA_HEIGHT + 2, 2 * STATS_AREA_WIDTH + 2, START_LINE, console_width // 2 - PLAY_AREA_WIDTH - 2 * STATS_AREA_WIDTH - 2
-	)
-	statistics_window.border()
-	statistics_window.addstr(1, 3, "STATISTICS")
-	statistics_window.refresh()
-
-	line = 2
-
-	for piece_class in STATS_PIECES:
-		piece = piece_class(initial_rotation_block_position=(line, 2))
-
-		if isinstance(piece, LongBar) or isinstance(piece, Square):
-			# ugly way of adjusting Long Bar and Square
-			x_offset = 1
-		else:
-			x_offset = 0
-
-		draw_piece(statistics_window, piece, x_offset)
-		line += 3
-
-	stats = statistics_gen(statistics_window)
-	next(stats)
-
-	return stats
+def setGameMode():
+    global MODE
+    print("Enter the mode which you want to play.\nNORMAL -> Normal\nSPRINT -> Sprint\n")
+    MODE = str(input())
 
 
-def statistics_gen(window):
-	"""
-	Corutine which maintains statistics and updates statistic window. Piece which shall be included in statistics is
-	expected to be send to this corutine.
-	"""
-	def re_draw_stats():
-		line = 2
-		for piece_class in STATS_PIECES:
-			piece_stats = stats[piece_class()]
-			window.addstr(line, 10, f"{piece_stats:03}")
-			line += 3
-
-		window.refresh()
-
-	stats = defaultdict(int)
-	while True:
-		re_draw_stats()
-		piece = yield
-		stats[piece] += 1
+def getName():
+    global PLAYER_NAME
+    print("Enter your name: ")
+    PLAYER_NAME = str(input())
 
 
-NEXT_PIECE_AREA_WIDTH = 4
-NEXT_PIECE_AREA_HEIGHT = 5
+def getBoard(window):
+    setupMainWindow(window)
+    height, width = window.getmaxyx()
+    return setupPlayWindow(width)
+
+def getChar(window):
+    return window.getch()
+
+# Input functions
+def moveRight(block):
+    return block.moveRight()
+
+def moveLeft(block):
+    return block.moveLeft()
+
+def advance(block):
+    return block.advance()
+
+def rotateRight(block):
+    return block.rotateClockwise()
+
+def rotateLeft(block):
+    return block.rotateAntiClockwise()
+
+def hardDrop(block, play_window):
+    while True:
+        advanced_positions = block.advance()
+        if advanced_positions:
+            if isInsideStack(advanced_positions):
+                break
+            else:
+                block.acceptMove()
+            reDrawPiece(play_window, block)
+
+# def setSpeed(timer, time_interval, block, play_window):
+    
+
+def setupMainWindow(window):
+    window.keypad(True)
+    window.nodelay(True)
+    window.refresh()
+    initColors()
+    title = "Command Line Tetris"
+    height, width = window.getmaxyx()
+    window.addstr(2, width // 2 - len(title) // 2, title)
+
+    # no cursor
+    curses.curs_set(0)
 
 
-def setup_next_piece_window(console_width):
-	next_piece_window = curses.newwin(
-		NEXT_PIECE_AREA_HEIGHT + 2, 2 * NEXT_PIECE_AREA_WIDTH + 2, START_LINE, console_width // 2 + PLAY_AREA_WIDTH + 2
-	)
-	next_piece_window.border()
-	next_piece_window.addstr(1, 3, "NEXT", curses.A_BOLD and curses.A_UNDERLINE)
-	next_piece_window.refresh()
+def setupPlayWindow(console_width):
+    # height and width of the new window + 2 to account for the borders
+    play_window = curses.newwin(
+        PLAY_AREA_HEIGHT + 2, 2 * PLAY_AREA_WIDTH +
+        2, START_LINE, console_width // 2 - PLAY_AREA_WIDTH
+    )
+    play_window.border()
 
-	return next_piece_window
-
-
-SCORE_AREA_WIDTH = 4
-SCORE_AREA_HEIGHT = 8
+    return play_window
 
 
-def setup_score(console_width):
-	score_window = curses.newwin(
-		SCORE_AREA_HEIGHT + 2, 2 * SCORE_AREA_WIDTH + 2, START_LINE + 8, console_width // 2 + PLAY_AREA_WIDTH + 2
-	)
-	score_window.border()
-	score_window.addstr(1, 1, "SCORE:", curses.A_BOLD and curses.A_UNDERLINE)
-	score_window.addstr(4, 1, "LINES:", curses.A_BOLD and curses.A_UNDERLINE)
-	score_window.addstr(7, 1, "LEVEL:", curses.A_BOLD and curses.A_UNDERLINE)
-	score_window.refresh()
+def setupStatistics(console_width):
+    statistics_window = curses.newwin(
+        STATS_AREA_HEIGHT + 2, 2 * STATS_AREA_WIDTH +
+        2, START_LINE, console_width // 2 - PLAY_AREA_WIDTH - 2 * STATS_AREA_WIDTH - 2
+    )
+    statistics_window.border()
+    statistics_window.addstr(1, 3, "STATISTICS")
+    statistics_window.refresh()
 
-	score = score_gen(score_window)
-	initial_time_interval = next(score)
+    line = 2
 
-	return initial_time_interval, score
+    for piece_class in STATS_PIECES:
+        piece = piece_class(initial_rotation_block_position=(line, 2))
 
-INITIAL_TIME_INTERVAL = 1
+        if isinstance(piece, LongBar) or isinstance(piece, Square):
+            # ugly way of adjusting Long Bar and Square
+            x_offset = 1
+        else:
+            x_offset = 0
 
-def score_gen(window):
-	"""
-	Corutine which maintains score, level, number of cleared line and current time interval. Updated time interval is
-	returned as a response to sending cleared lines count.
-	"""
-	def update_score_window():
-		window.addstr(2, 2, f"{score:05}")
-		window.addstr(5, 2, f"{lines:03}")
-		window.addstr(8, 2, f"{lvl:03}")
-		window.refresh()
+        drawPiece(statistics_window, piece, x_offset)
+        line += 3
 
-	def calculate_score(lines_cnt):
-		# scoring system taken from https://tetris.fandom.com/wiki/Scoring
-		if lines_cnt == 4:
-			# Tetris
-			return 1200 * (lvl + 1)
-		if lines_cnt == 3:
-			return 300 * (lvl + 1)
-		if lines_cnt == 2:
-			return 100 * (lvl + 1)
+    stats = statisticsGen(statistics_window)
+    next(stats)
 
-		return 40 * (lvl + 1)
-
-	def update_time_interval():
-		offset = lvl * 0.1
-		if INITIAL_TIME_INTERVAL > offset:
-			return INITIAL_TIME_INTERVAL - offset
-
-		return current_time_interval
-
-	current_time_interval = INITIAL_TIME_INTERVAL  # [s]
-	score = 0
-	lines = 0
-	lvl = 0
-
-	while True:
-		update_score_window()
-		nbr_of_cleared_lines = yield current_time_interval
-		lines += nbr_of_cleared_lines
-		score += calculate_score(nbr_of_cleared_lines)
-		lvl = lines // 10
-		current_time_interval = update_time_interval()
+    return stats
 
 
-HELP_AREA_HEIGHT = 3
+def statisticsGen(window):
+    """
+    Corutine which maintains statistics and updates statistic window. Piece which shall be included in statistics is
+    expected to be send to this corutine.
+    """
+    def re_draw_stats():
+        line = 2
+        for piece_class in STATS_PIECES:
+            piece_stats = stats[piece_class()]
+            window.addstr(line, 10, f"{piece_stats:03}")
+            line += 3
 
-def set_game_difficulty():
-	global GAME_DIFFICULTY
-	global SPEED_TIME_INTERVAL
-	GAME_DIFFICULTY = str(input())
+        window.refresh()
 
-	if GAME_DIFFICULTY == "M":
-		SPEED_TIME_INTERVAL = 2
-	elif GAME_DIFFICULTY == "H":
-		SPEED_TIME_INTERVAL = 4
-
-def set_game_mode():
-	global MODE
-	MODE = str(input())
-
-def setup_help(console_width):
-	help_window = curses.newwin(
-		HELP_AREA_HEIGHT + 2, 2 * STATS_AREA_WIDTH + 2 + 2 * PLAY_AREA_WIDTH + 2 + 2 * SCORE_AREA_WIDTH + 2,
-		START_LINE + STATS_AREA_HEIGHT + 2, console_width // 2 - PLAY_AREA_WIDTH - 2 * STATS_AREA_WIDTH - 2
-	)
-
-	help_window.border()
-	help_window.addstr(1, 4, "LEFT/RIGHT/DOWN arrow keys to move piece", curses.A_BOLD)
-	help_window.addstr(2, 1, "A - rotate clockwise, D - rotate anticlockwise", curses.A_BOLD)
-	help_window.addstr(3, 20, "Q - Quit", curses.A_BOLD)
-	help_window.refresh()
+    stats = defaultdict(int)
+    while True:
+        re_draw_stats()
+        piece = yield
+        stats[piece] += 1
 
 
-# associated given piece with color pairs defined in init_colors
+def setupNextPieceWindow(console_width):
+    next_piece_window = curses.newwin(
+        NEXT_PIECE_AREA_HEIGHT + 2, 2 * NEXT_PIECE_AREA_WIDTH +
+        2, START_LINE, console_width // 2 + PLAY_AREA_WIDTH + 2
+    )
+    next_piece_window.border()
+    next_piece_window.addstr(
+        1, 3, "NEXT", curses.A_BOLD and curses.A_UNDERLINE)
+    next_piece_window.refresh()
+
+    return next_piece_window
+
+
+def setupScore(console_width):
+    score_window = curses.newwin(
+        SCORE_AREA_HEIGHT + 2, 2 * SCORE_AREA_WIDTH + 2, START_LINE +
+        8, console_width // 2 + PLAY_AREA_WIDTH + 2
+    )
+    score_window.border()
+    score_window.addstr(1, 1, "SCORE:", curses.A_BOLD and curses.A_UNDERLINE)
+    score_window.addstr(4, 1, "LINES:", curses.A_BOLD and curses.A_UNDERLINE)
+    score_window.addstr(7, 1, "LEVEL:", curses.A_BOLD and curses.A_UNDERLINE)
+    score_window.refresh()
+
+    score = scoreGen(score_window)
+    initial_time_interval = next(score)
+
+    return initial_time_interval, score
+
+
+def scoreGen(window):
+    """
+    Corutine which maintains score, level, number of cleared line and current time interval. Updated time interval is
+    returned as a response to sending cleared lines count.
+    """
+    def updateScoreWindow():
+        window.addstr(2, 2, f"{score:05}")
+        window.addstr(5, 2, f"{lines:03}")
+        window.addstr(8, 2, f"{lvl:03}")
+        window.refresh()
+
+    def calculateScore(lines_cnt):
+        # scoring system taken from https://tetris.fandom.com/wiki/Scoring
+        if lines_cnt == 4:
+            # Tetris
+            return 1200 * (lvl + 1)
+        if lines_cnt == 3:
+            return 300 * (lvl + 1)
+        if lines_cnt == 2:
+            return 100 * (lvl + 1)
+
+        return 40 * (lvl + 1)
+
+    def updateTimeInterval():
+        offset = lvl * 0.1
+        if INITIAL_TIME_INTERVAL > offset:
+            return INITIAL_TIME_INTERVAL - offset
+
+        return current_time_interval
+
+    current_time_interval = INITIAL_TIME_INTERVAL  # [s]
+    score = 0
+    lines = 0
+    lvl = 0
+
+    while True:
+        updateScoreWindow()
+        nbr_of_cleared_lines = yield current_time_interval
+        lines += nbr_of_cleared_lines
+        score += calculateScore(nbr_of_cleared_lines)
+        lvl = lines // 10
+        current_time_interval = updateTimeInterval()
+
+
+def setupHelp(console_width):
+    help_window = curses.newwin(
+        HELP_AREA_HEIGHT + 2, 2 * STATS_AREA_WIDTH + 2 + 2 *
+        PLAY_AREA_WIDTH + 2 + 2 * SCORE_AREA_WIDTH + 2,
+        START_LINE + STATS_AREA_HEIGHT + 2, console_width // 2 -
+        PLAY_AREA_WIDTH - 2 * STATS_AREA_WIDTH - 2
+    )
+
+    help_window.border()
+    help_window.addstr(
+        1, 4, "LEFT/RIGHT/DOWN arrow keys to move piece", curses.A_BOLD)
+    help_window.addstr(
+        2, 1, "A - rotate clockwise, D - rotate anticlockwise", curses.A_BOLD)
+    help_window.addstr(3, 20, "Q - Quit", curses.A_BOLD)
+    help_window.refresh()
+
+
+# associated given piece with color pairs defined in initColors
 COLOR_MAP = {
-	T_Piece(): 1,
-	J_Piece(): 2,
-	Z_Piece(): 3,
-	Square(): 4,
-	S_Piece(): 5,
-	L_Piece(): 6,
-	LongBar(): 7
+    T_Piece(): 1,
+    J_Piece(): 2,
+    Z_Piece(): 3,
+    Square(): 4,
+    S_Piece(): 5,
+    L_Piece(): 6,
+    LongBar(): 7
 }
 
 
-def init_colors():
-	"""
-	Initializes curses colors for all pieces
-	"""
-	curses.init_pair(1, curses.COLOR_BLUE, curses.COLOR_BLACK)
-	curses.init_pair(2, curses.COLOR_CYAN, curses.COLOR_BLACK)
-	curses.init_pair(3, curses.COLOR_GREEN, curses.COLOR_BLACK)
-	curses.init_pair(4, curses.COLOR_YELLOW, curses.COLOR_BLACK)
-	curses.init_pair(5, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
-	curses.init_pair(6, curses.COLOR_RED, curses.COLOR_BLACK)
-	curses.init_pair(7, curses.COLOR_WHITE, curses.COLOR_BLACK)
+def initColors():
+    """
+    Initializes curses colors for all pieces
+    """
+    curses.init_pair(1, curses.COLOR_BLUE, curses.COLOR_BLACK)
+    curses.init_pair(2, curses.COLOR_CYAN, curses.COLOR_BLACK)
+    curses.init_pair(3, curses.COLOR_GREEN, curses.COLOR_BLACK)
+    curses.init_pair(4, curses.COLOR_YELLOW, curses.COLOR_BLACK)
+    curses.init_pair(5, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
+    curses.init_pair(6, curses.COLOR_RED, curses.COLOR_BLACK)
+    curses.init_pair(7, curses.COLOR_WHITE, curses.COLOR_BLACK)
 
 
-def re_draw_piece(window, piece: AbstractPiece):
-	previous_positions = piece.previous_positions
+def reDrawPiece(window, piece: AbstractPiece):
+    previousPositions = piece.previousPositions
 
-	if previous_positions:
-		for old_y, old_x in previous_positions:
-			window.addch(old_y, 2 * old_x + 1, " ")
-			window.addch(old_y, 2 * old_x + 2, " ")
+    if previousPositions:
+        for old_y, old_x in previousPositions:
+            window.addch(old_y, 2 * old_x + 1, " ")
+            window.addch(old_y, 2 * old_x + 2, " ")
 
-	draw_piece(window, piece)
-
-
-def draw_piece(window, piece, x_offset=1):
-	for new_y, new_x in piece.current_positions:
-		# two curses.ACS_CKBOARD can be used also as one basic square
-		# first and last columns serve as borders, so +1/+2 offsets needs to be used
-		# to account for that
-		color = COLOR_MAP[piece]
-		window.addch(new_y, 2 * new_x + x_offset, "[", curses.color_pair(color))
-		window.addch(new_y, 2 * new_x + x_offset + 1, "]", curses.color_pair(color))
-
-	window.refresh()
+    drawPiece(window, piece)
 
 
-def draw_next_piece(window, piece_class):
-	def erase_piece():
-		for old_y in range(2, NEXT_PIECE_AREA_HEIGHT):
-			for old_x in range(NEXT_PIECE_AREA_WIDTH):
-				window.addch(old_y, 2 * old_x + 1, " ")
-				window.addch(old_y, 2 * old_x + 2, " ")
+def drawPiece(window, piece, x_offset=1):
+    for new_y, new_x in piece.currentPositions:
+        # two curses.ACS_CKBOARD can be used also as one basic square
+        # first and last columns serve as borders, so +1/+2 offsets needs to be used
+        # to account for that
+        color = COLOR_MAP[piece]
+        window.addch(new_y, 2 * new_x + x_offset,
+                     "[", curses.color_pair(color))
+        window.addch(new_y, 2 * new_x + x_offset + 1,
+                     "]", curses.color_pair(color))
 
-	erase_piece()
-
-	next_piece = piece_class(initial_rotation_block_position=(3, 2))
-
-	if isinstance(next_piece, LongBar) or isinstance(next_piece, Square):
-		# ugly way of adjusting Long Bar and Square to fit in the preview window
-		x_offset = 1
-	else:
-		x_offset = 0
-
-	draw_piece(window, next_piece, x_offset)
+    window.refresh()
 
 
-def draw_stack(window, stack):
-	if stack['previous_positions']:
-		for y, x in stack['previous_positions']:
-			window.addch(y, 2 * x + 1, " ")
-			window.addch(y, 2 * x + 2, " ")
+def drawNextPiece(window, piece_class):
+    def erase_piece():
+        for old_y in range(2, NEXT_PIECE_AREA_HEIGHT):
+            for old_x in range(NEXT_PIECE_AREA_WIDTH):
+                window.addch(old_y, 2 * old_x + 1, " ")
+                window.addch(old_y, 2 * old_x + 2, " ")
 
-		stack['previous_positions'] = None
+    erase_piece()
 
-	for (y, x), color in stack['positions'].items():
-		window.addch(y, 2 * x + 1, "[", curses.color_pair(color))
-		window.addch(y, 2 * x + 2, "]", curses.color_pair(color))
+    next_piece = piece_class(initial_rotation_block_position=(3, 2))
 
-	window.refresh()
+    if isinstance(next_piece, LongBar) or isinstance(next_piece, Square):
+        # ugly way of adjusting Long Bar and Square to fit in the preview window
+        x_offset = 1
+    else:
+        x_offset = 0
 
-
-def clear_line_animation(window, lines):
-	def fill_with(char):
-		for line in lines:
-			for x in range(PLAY_AREA_WIDTH):
-				window.addch(line, 2 * x + 1, char)
-				window.addch(line, 2 * x + 2, char)
-
-		window.refresh()
-
-	def animation_cycle():
-		fill_with(curses.ACS_CKBOARD)
-		sleep(0.1)
-		fill_with(" ")
-		sleep(0.1)
-
-	if len(lines) == 4:
-		# tetris scored
-		nbr_of_cycles = 3
-	elif len(lines) == 3:
-		nbr_of_cycles = 2
-	else:
-		nbr_of_cycles = 1
-
-	for _ in range(nbr_of_cycles):
-		animation_cycle()
+    drawPiece(window, next_piece, x_offset)
 
 
-def end_animation(window):
-	for y in range(1, PLAY_AREA_HEIGHT + 1):
-		for x in range(PLAY_AREA_WIDTH):
-			window.addch(y, 2 * x + 1, curses.ACS_CKBOARD)
-			window.addch(y, 2 * x + 2, curses.ACS_CKBOARD)
-			window.refresh()
-			sleep(0.02)
+def drawStack(window):
+    global stack
+    if stack['previousPositions']:
+        for y, x in stack['previousPositions']:
+            window.addch(y, 2 * x + 1, " ")
+            window.addch(y, 2 * x + 2, " ")
 
-	sleep(1)
+        stack['previousPositions'] = None
+
+    for (y, x), color in stack['positions'].items():
+        window.addch(y, 2 * x + 1, "[", curses.color_pair(color))
+        window.addch(y, 2 * x + 2, "]", curses.color_pair(color))
+
+    window.refresh()
+
+
+def clearLineAnimation(window, lines):
+    def fill_with(char):
+        for line in lines:
+            for x in range(PLAY_AREA_WIDTH):
+                window.addch(line, 2 * x + 1, char)
+                window.addch(line, 2 * x + 2, char)
+
+        window.refresh()
+
+    def animationCycle():
+        fill_with(curses.ACS_CKBOARD)
+        sleep(0.1)
+        fill_with(" ")
+        sleep(0.1)
+
+    if len(lines) == 4:
+        # tetris scored
+        nbr_of_cycles = 3
+    elif len(lines) == 3:
+        nbr_of_cycles = 2
+    else:
+        nbr_of_cycles = 1
+
+    for _ in range(nbr_of_cycles):
+        animationCycle()
+
+
+def endAnimation(window):
+    for y in range(1, PLAY_AREA_HEIGHT + 1):
+        for x in range(PLAY_AREA_WIDTH):
+            window.addch(y, 2 * x + 1, curses.ACS_CKBOARD)
+            window.addch(y, 2 * x + 2, curses.ACS_CKBOARD)
+            window.refresh()
+            sleep(0.02)
+
+    sleep(1)
 
 
 """
@@ -460,113 +496,107 @@ def end_animation(window):
 """
 
 
-def validate_positions(requested_positions, stack):
-	for candidate_y, candidate_x in requested_positions:
-		if candidate_y <= 0 or candidate_y > PLAY_AREA_HEIGHT:
-			return False
+def validatePositions(requested_positions):
+    for candidate_y, candidate_x in requested_positions:
+        if candidate_y <= 0 or candidate_y > PLAY_AREA_HEIGHT:
+            return False
 
-		if candidate_x < 0 or candidate_x >= PLAY_AREA_WIDTH:
-			return False
+        if candidate_x < 0 or candidate_x >= PLAY_AREA_WIDTH:
+            return False
 
-		if (candidate_y, candidate_x) in stack['positions']:
-			return False
+        if (candidate_y, candidate_x) in stack['positions']:
+            return False
 
-	return True
-
-
-def is_inside_stack(requested_positions, stack):
-	for candidate_point in requested_positions:
-		if candidate_point in stack['positions']:
-			return True
-
-		candidate_y, _ = candidate_point
-
-		if candidate_y > PLAY_AREA_HEIGHT:
-			# last row
-			return True
-
-	return False
+    return True
 
 
-def increase_stack(piece, stack):
-	affected_lines = set()
-	color = COLOR_MAP[piece]
+def isInsideStack(requested_positions):
+    for candidate_point in requested_positions:
+        if candidate_point in stack['positions']:
+            return True
 
-	for position in piece.current_positions:
-		stack['positions'][position] = color
-		line, _ = position
-		affected_lines.add(line)
+        candidate_y, _ = candidate_point
 
-	return affected_lines
+        if candidate_y > PLAY_AREA_HEIGHT:
+            # last row
+            return True
 
-
-def check_cleared_lines(stack, affected_lines):
-	cleared_lines = list()
-
-	for line in affected_lines:
-		line_cleared = True
-		for x in range(PLAY_AREA_WIDTH):
-			if (line, x) not in stack['positions']:
-				line_cleared = False
-				break
-
-		if line_cleared:
-			cleared_lines.append(line)
-
-	return cleared_lines
+    return False
 
 
-def get_name():
-	global PLAYER_NAME
-	PLAYER_NAME = str(input())
+def increaseStack(piece):
+    global stack
+    affected_lines = set()
+    color = COLOR_MAP[piece]
 
-def clear_lines(lines, stack):
-	def count_lines_above(line):
-		cnt = 0
+    for position in piece.currentPositions:
+        stack['positions'][position] = color
+        line, _ = position
+        affected_lines.add(line)
 
-		for cleared_line in lines:
-			if line < cleared_line:
-				cnt += 1
+    return affected_lines
 
-		return cnt
 
-	new_positions = dict()
+def checkClearedLines(affected_lines):
+    cleared_lines = list()
 
-	max_line = max(lines)
-	# update remaining stack positions
-	for position, color in stack['positions'].items():
-		y, x = position
+    for line in affected_lines:
+        line_cleared = True
+        for x in range(PLAY_AREA_WIDTH):
+            if (line, x) not in stack['positions']:
+                line_cleared = False
+                break
 
-		if y in lines:
-			continue
+        if line_cleared:
+            cleared_lines.append(line)
 
-		if y > max_line:
-			# current position is below cleared lines
-			# position doesn't need to be updated
-			new_positions[position] = color
-		else:
-			new_position = (y + count_lines_above(y), x)
-			new_positions[new_position] = color
+    return cleared_lines
 
-	stack['previous_positions'] = stack['positions']
-	stack['positions'] = new_positions
+
+def clearLines(lines):
+    global stack
+    def count_lines_above(line):
+        cnt = 0
+
+        for cleared_line in lines:
+            if line < cleared_line:
+                cnt += 1
+
+        return cnt
+
+    new_positions = dict()
+
+    max_line = max(lines)
+    # update remaining stack positions
+    for position, color in stack['positions'].items():
+        y, x = position
+
+        if y in lines:
+            continue
+
+        if y > max_line:
+            # current position is below cleared lines
+            # position doesn't need to be updated
+            new_positions[position] = color
+        else:
+            new_position = (y + count_lines_above(y), x)
+            new_positions[new_position] = color
+
+    stack['previousPositions'] = stack['positions']
+    stack['positions'] = new_positions
 
 
 if __name__ == '__main__':
-	#Give the height and width as input
-	print("Enter height and width: ", end = "")
-	PLAY_AREA_HEIGHT, PLAY_AREA_WIDTH = map(int, input().strip().split())
-	
-	# get the name of the player 
-	print("Enter your name: ")
-	get_name()
+    # Get the name of the player
+    getName()
 
-	#get the mode of the game
-	print("Enter the mode which you want to play.\nN -> Normal\nS -> Sprint\n")
-	set_game_mode()
+    # Get the mode of the game
+    setGameMode()
 
-	# get the difficulty level for the game:
-	print("Enter the difficulty level for the game.\nE -> Easy\nM -> Medium\nH -> Hard\n")
-	set_game_difficulty()
+    # Get the difficulty level for the game:
+    setGameDifficulty()
 
-	curses.wrapper(main)
+    # Height and width of the board
+    playHW()
+
+    curses.wrapper(main)

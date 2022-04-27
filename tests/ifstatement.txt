@@ -1,0 +1,6 @@
+int a = 4;
+
+if(a == 4){
+	str hello = "Hello";
+	display(hello);
+}

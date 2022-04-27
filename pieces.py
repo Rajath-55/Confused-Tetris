@@ -5,7 +5,7 @@ from enum import Enum
 import random
 
 
-def get_positions_from_rotation(rotation_block, orientation_enum):
+def getPositionsFromRotation(rotation_block, orientation_enum):
     positions = list()
 
     for y_offset, x_offset in orientation_enum.value:
@@ -41,7 +41,7 @@ class AbstractPiece:
 
         return False
 
-    def accept_move(self):
+    def acceptMove(self):
         self.previous_rotation_block = self.rotation_block
         if self.requested_rotation_block:
             self.rotation_block = self.requested_rotation_block
@@ -50,36 +50,36 @@ class AbstractPiece:
         if self.requested_orientation:
             self.orientation = self.requested_orientation
 
-    def reject_move(self):
+    def rejectMove(self):
         self.requested_rotation_block = None
         self.requested_orientation = None
 
     @property
-    def previous_positions(self):
+    def previousPositions(self):
         if self.previous_rotation_block:
-            return get_positions_from_rotation(self.previous_rotation_block, self.previous_orientation)
+            return getPositionsFromRotation(self.previous_rotation_block, self.previous_orientation)
 
         return None
 
     @property
-    def current_positions(self):
-        return get_positions_from_rotation(self.rotation_block, self.orientation)
+    def currentPositions(self):
+        return getPositionsFromRotation(self.rotation_block, self.orientation)
 
-    def move_right(self):
+    def moveRight(self):
         self.requested_rotation_block = (
             self.rotation_block[0],
             self.rotation_block[1] + 1
         )
 
-        return get_positions_from_rotation(self.requested_rotation_block, self.orientation)
+        return getPositionsFromRotation(self.requested_rotation_block, self.orientation)
 
-    def move_left(self):
+    def moveLeft(self):
         self.requested_rotation_block = (
             self.rotation_block[0],
             self.rotation_block[1] - 1
         )
 
-        return get_positions_from_rotation(self.requested_rotation_block, self.orientation)
+        return getPositionsFromRotation(self.requested_rotation_block, self.orientation)
 
     def advance(self):
         self.requested_rotation_block = (
@@ -87,12 +87,12 @@ class AbstractPiece:
             self.rotation_block[1]
         )
 
-        return get_positions_from_rotation(self.requested_rotation_block, self.orientation)
+        return getPositionsFromRotation(self.requested_rotation_block, self.orientation)
 
-    def rotate_clockwise(self):
+    def rotateClockwise(self):
         raise NotImplementedError()
 
-    def rotate_anti_clockwise(self):
+    def rotateAntiClockwise(self):
         raise NotImplementedError()
 
 
@@ -110,12 +110,12 @@ class Square(AbstractPiece):
         super().__init__(**kwargs)
         self.orientation = Square._Orientation.CONSTANT
 
-    def rotate_clockwise(self):
+    def rotateClockwise(self):
         # Square doesn't rotate so return current positions
-        return get_positions_from_rotation(self.rotation_block, self.orientation)
+        return getPositionsFromRotation(self.rotation_block, self.orientation)
 
-    def rotate_anti_clockwise(self):
-        return self.rotate_clockwise()
+    def rotateAntiClockwise(self):
+        return self.rotateClockwise()
 
 
 class LongBar(AbstractPiece):
@@ -132,16 +132,16 @@ class LongBar(AbstractPiece):
         super().__init__(**kwargs)
         self.orientation = LongBar._Orientation.VERTICAL
 
-    def rotate_clockwise(self):
+    def rotateClockwise(self):
         if self.orientation == LongBar._Orientation.VERTICAL:
             self.requested_orientation = LongBar._Orientation.HORIZONTAL
         else:
             self.requested_orientation = LongBar._Orientation.VERTICAL
 
-        return get_positions_from_rotation(self.rotation_block, self.requested_orientation)
+        return getPositionsFromRotation(self.rotation_block, self.requested_orientation)
 
-    def rotate_anti_clockwise(self):
-        return self.rotate_clockwise()
+    def rotateAntiClockwise(self):
+        return self.rotateClockwise()
 
 
 class L_Piece(AbstractPiece):
@@ -172,15 +172,15 @@ class L_Piece(AbstractPiece):
         super().__init__(**kwargs)
         self.orientation = L_Piece._Orientation.DOWN
 
-    def rotate_clockwise(self):
+    def rotateClockwise(self):
         self.requested_orientation = L_Piece._clockwise_rotation[self.orientation]
 
-        return get_positions_from_rotation(self.rotation_block, self.requested_orientation)
+        return getPositionsFromRotation(self.rotation_block, self.requested_orientation)
 
-    def rotate_anti_clockwise(self):
+    def rotateAntiClockwise(self):
         self.requested_orientation = L_Piece._anti_clockwise_rotation[self.orientation]
 
-        return get_positions_from_rotation(self.rotation_block, self.requested_orientation)
+        return getPositionsFromRotation(self.rotation_block, self.requested_orientation)
 
 
 class J_Piece(AbstractPiece):
@@ -211,15 +211,15 @@ class J_Piece(AbstractPiece):
         super().__init__(**kwargs)
         self.orientation = J_Piece._Orientation.DOWN
 
-    def rotate_clockwise(self):
+    def rotateClockwise(self):
         self.requested_orientation = J_Piece._clockwise_rotation[self.orientation]
 
-        return get_positions_from_rotation(self.rotation_block, self.requested_orientation)
+        return getPositionsFromRotation(self.rotation_block, self.requested_orientation)
 
-    def rotate_anti_clockwise(self):
+    def rotateAntiClockwise(self):
         self.requested_orientation = J_Piece._anti_clockwise_rotation[self.orientation]
 
-        return get_positions_from_rotation(self.rotation_block, self.requested_orientation)
+        return getPositionsFromRotation(self.rotation_block, self.requested_orientation)
 
 
 class Z_Piece(AbstractPiece):
@@ -239,16 +239,16 @@ class Z_Piece(AbstractPiece):
         super().__init__(**kwargs)
         self.orientation = Z_Piece._Orientation.LEFT
 
-    def rotate_clockwise(self):
+    def rotateClockwise(self):
         if self.orientation == Z_Piece._Orientation.UP:
             self.requested_orientation = Z_Piece._Orientation.LEFT
         else:
             self.requested_orientation = Z_Piece._Orientation.UP
 
-        return get_positions_from_rotation(self.rotation_block, self.requested_orientation)
+        return getPositionsFromRotation(self.rotation_block, self.requested_orientation)
 
-    def rotate_anti_clockwise(self):
-        return self.rotate_clockwise()
+    def rotateAntiClockwise(self):
+        return self.rotateClockwise()
 
 
 class S_Piece(AbstractPiece):
@@ -268,16 +268,16 @@ class S_Piece(AbstractPiece):
         super().__init__(**kwargs)
         self.orientation = S_Piece._Orientation.RIGHT
 
-    def rotate_clockwise(self):
+    def rotateClockwise(self):
         if self.orientation == S_Piece._Orientation.UP:
             self.requested_orientation = S_Piece._Orientation.RIGHT
         else:
             self.requested_orientation = S_Piece._Orientation.UP
 
-        return get_positions_from_rotation(self.rotation_block, self.requested_orientation)
+        return getPositionsFromRotation(self.rotation_block, self.requested_orientation)
 
-    def rotate_anti_clockwise(self):
-        return self.rotate_clockwise()
+    def rotateAntiClockwise(self):
+        return self.rotateClockwise()
 
 
 class T_Piece(AbstractPiece):
@@ -308,19 +308,19 @@ class T_Piece(AbstractPiece):
         super().__init__(**kwargs)
         self.orientation = T_Piece._Orientation.DOWN
 
-    def rotate_clockwise(self):
+    def rotateClockwise(self):
         self.requested_orientation = T_Piece._clockwise_rotation[self.orientation]
 
-        return get_positions_from_rotation(self.rotation_block, self.requested_orientation)
+        return getPositionsFromRotation(self.rotation_block, self.requested_orientation)
 
-    def rotate_anti_clockwise(self):
+    def rotateAntiClockwise(self):
         self.requested_orientation = T_Piece._anti_clockwise_rotation[self.orientation]
 
-        return get_positions_from_rotation(self.rotation_block, self.requested_orientation)
+        return getPositionsFromRotation(self.rotation_block, self.requested_orientation)
 
 
 all_pieces = (Square, LongBar, L_Piece, J_Piece, Z_Piece, S_Piece, T_Piece)
 
 # getNextTetromino() maps to this:
-def get_next_tetromino():
+def getNextTetromino():
     return random.choice(all_pieces)

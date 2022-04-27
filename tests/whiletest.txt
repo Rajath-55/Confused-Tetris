@@ -1,0 +1,6 @@
+int a = 4;
+
+while(a == 4){
+	str hello = "Loop";
+	break;
+}

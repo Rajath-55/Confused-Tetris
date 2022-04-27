@@ -1,11 +1,11 @@
-# Tetris in Command Line!
+# Tetris Programming language
 
-NES-like _Tetris_ game, playable in terminal. It uses curses - basic module which allows to manipulate content of terminal window.
+A programming language for Tetris, built by using the SLY library for lexical analysis and parsing in python.
 
-To start a new game type in terminal:
 
-`python game.py`
+
+`python3 game.py`
 
 <p align="center">
-  <img src=preview.gif/>
+  <img src="preview.gif"/>
 </p>
