@@ -124,10 +124,10 @@ Rule 120   anticlockwise -> ANTI_CLOCKWISE
 
 Unused terminals:
 
-    NORMAL
-    TIMEOUT
-    WHILE
     SPRINT
+    WHILE
+    TIMEOUT
+    NORMAL
 
 Terminals, with rules where they appear:
 
