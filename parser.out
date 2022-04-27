@@ -1,0 +1,215 @@
+Grammar:
+
+Rule 0     S' -> operand
+Rule 1     operand -> NUMBER
+Rule 2     operand -> ID
+Rule 3     factor -> ( expr )
+Rule 4     factor -> operand
+Rule 5     expr -> expr OR expr  [precedence=left, level=1]
+Rule 6     expr -> expr AND expr  [precedence=left, level=2]
+Rule 7     expr -> NOT expr  [precedence=left, level=3]
+Rule 8     expr -> expr EE expr  [precedence=nonassoc, level=4]
+Rule 9     expr -> expr NE expr  [precedence=nonassoc, level=4]
+Rule 10    expr -> expr GTE expr  [precedence=nonassoc, level=4]
+Rule 11    expr -> expr LTE expr  [precedence=nonassoc, level=4]
+Rule 12    expr -> expr LT expr  [precedence=nonassoc, level=4]
+Rule 13    expr -> expr GT expr  [precedence=nonassoc, level=4]
+Rule 14    expr -> expr - expr  [precedence=left, level=5]
+Rule 15    expr -> expr + expr  [precedence=left, level=5]
+Rule 16    expr -> expr % expr  [precedence=left, level=6]
+Rule 17    expr -> expr / expr  [precedence=left, level=6]
+Rule 18    expr -> expr * expr  [precedence=left, level=6]
+Rule 19    expr -> factor
+Rule 20    expr -> - factor  [precedence=right, level=7]
+Rule 21    data_type -> TETRO
+Rule 22    data_type -> BOARD
+Rule 23    data_type -> ARRAY
+Rule 24    data_type -> STRING_TYPE
+Rule 25    data_type -> INT_TYPE
+Rule 26    val -> STRING_LITERAL
+Rule 27    val -> NUMBER
+Rule 28    set -> set SEPARATOR val
+Rule 29    set -> val
+Rule 30    array_val -> LBLOCKPAREN set RBLOCKPAREN
+Rule 31    array_val -> LBLOCKPAREN RBLOCKPAREN
+Rule 32    init_stmt -> ARRAY ID ASSIGN array_val EOL
+Rule 33    init_stmt -> data_type ID ASSIGN expr EOL
+Rule 34    init_stmt -> data_type ID ASSIGN val EOL
+Rule 35    reass_stmt -> ID ASSIGN expr EOL
+Rule 36    reass_stmt -> ID ASSIGN array_val EOL
+Rule 37    reass_stmt -> ID ASSIGN val EOL
+Rule 38    param -> val
+Rule 39    param -> ID
+Rule 40    params -> params SEPARATOR param
+Rule 41    params -> param
+Rule 42    birf_wop -> GET_CHAR
+Rule 43    birf_wop -> GET_NEXT_TETROMINO
+Rule 44    birf_wop -> GET_NAME
+Rule 45    birf_wop_call -> birf_wop ( )
+Rule 46    birf_wp -> CHECK_CLEARED_LINE
+Rule 47    birf_wp -> GET_BOARD
+Rule 48    pop_call -> POP ( array_val )
+Rule 49    pop_call -> POP ( ID )
+
+Unused terminals:
+
+    MOVE_LEFT
+    DISPLAY
+    CLOCKWISE
+    CLEAR_LINE
+    HARD
+    ELSE
+    DISPLAY_BOARD
+    EXIT
+    REM
+    MEDIUM
+    SPRINT
+    ARROW_RIGHT
+    LCURLYPAREN
+    CLEAR_SCREEN
+    PUSH
+    SET_SPEED
+    ROTATE_RIGHT
+    ROTATE_LEFT
+    DISPLAY_TETRO
+    SOFT_DROP_FLAG
+    EASY
+    ARROW_LEFT
+    SET_MODE
+    HARD_DROP_FLAG
+    BREAK
+    NORMAL
+    ADD_SCORE
+    IF
+    SOFT_DROP
+    RCURLYPAREN
+    TIMEOUT
+    MOVE_RIGHT
+    DISPLAY_NEXT_TETRO
+    DISPLAY_LEADERBOARD
+    ANTI_CLOCKWISE
+    WHILE
+    HARD_DROP
+    LEN
+
+Terminals, with rules where they appear:
+
+%                    : 16
+(                    : 3 45 48 49
+)                    : 3 45 48 49
+*                    : 18
++                    : 15
+-                    : 14 20
+/                    : 17
+ADD_SCORE            : 
+AND                  : 6
+ANTI_CLOCKWISE       : 
+ARRAY                : 23 32
+ARROW_LEFT           : 
+ARROW_RIGHT          : 
+ASSIGN               : 32 33 34 35 36 37
+BOARD                : 22
+BREAK                : 
+CHECK_CLEARED_LINE   : 46
+CLEAR_LINE           : 
+CLEAR_SCREEN         : 
+CLOCKWISE            : 
+DISPLAY              : 
+DISPLAY_BOARD        : 
+DISPLAY_LEADERBOARD  : 
+DISPLAY_NEXT_TETRO   : 
+DISPLAY_TETRO        : 
+EASY                 : 
+EE                   : 8
+ELSE                 : 
+EOL                  : 32 33 34 35 36 37
+EXIT                 : 
+GET_BOARD            : 47
+GET_CHAR             : 42
+GET_NAME             : 44
+GET_NEXT_TETROMINO   : 43
+GT                   : 13
+GTE                  : 10
+HARD                 : 
+HARD_DROP            : 
+HARD_DROP_FLAG       : 
+ID                   : 2 32 33 34 35 36 37 39 49
+IF                   : 
+INT_TYPE             : 25
+LBLOCKPAREN          : 30 31
+LCURLYPAREN          : 
+LEN                  : 
+LT                   : 12
+LTE                  : 11
+MEDIUM               : 
+MOVE_LEFT            : 
+MOVE_RIGHT           : 
+NE                   : 9
+NORMAL               : 
+NOT                  : 7
+NUMBER               : 1 27
+OR                   : 5
+POP                  : 48 49
+PUSH                 : 
+RBLOCKPAREN          : 30 31
+RCURLYPAREN          : 
+REM                  : 
+ROTATE_LEFT          : 
+ROTATE_RIGHT         : 
+SEPARATOR            : 28 40
+SET_MODE             : 
+SET_SPEED            : 
+SOFT_DROP            : 
+SOFT_DROP_FLAG       : 
+SPRINT               : 
+STRING_LITERAL       : 26
+STRING_TYPE          : 24
+TETRO                : 21
+TIMEOUT              : 
+WHILE                : 
+error                : 
+
+Nonterminals, with rules where they appear:
+
+array_val            : 32 36 48
+birf_wop             : 45
+birf_wop_call        : 
+birf_wp              : 
+data_type            : 33 34
+expr                 : 3 5 5 6 6 7 8 8 9 9 10 10 11 11 12 12 13 13 14 14 15 15 16 16 17 17 18 18 33 35
+factor               : 19 20
+init_stmt            : 
+operand              : 4 0
+param                : 40 41
+params               : 40
+pop_call             : 
+reass_stmt           : 
+set                  : 28 30
+val                  : 28 29 34 37 38
+
+
+state 0
+
+    (0) S' -> . operand
+    (1) operand -> . NUMBER
+    (2) operand -> . ID
+    NUMBER          shift and go to state 2
+    ID              shift and go to state 3
+
+    operand                        shift and go to state 1
+
+state 1
+
+    (0) S' -> operand .
+
+
+state 2
+
+    (1) operand -> NUMBER .
+    $end            reduce using rule 1 (operand -> NUMBER .)
+
+
+state 3
+
+    (2) operand -> ID .
+    $end            reduce using rule 2 (operand -> ID .)
