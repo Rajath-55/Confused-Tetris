@@ -789,14 +789,25 @@ class TetrisParser(Parser):
     # else_stmt
     @_('IF "(" expr ")" LCURLYPAREN compound_stmt RCURLYPAREN ELSE LCURLYPAREN compound_stmt RCURLYPAREN')
     def if_else_stmt(self, p):
-        if p.expr:
+        if p.expr>0:
             return p.compound_stmt0
         else:
             return p.compound_stmt1
 
-    @_('ELSE if_stmt else_stmt')
-    def if_else_if_stmt(self, p):
-        pass
+    @_('IF "(" expr ")" LCURLYPAREN compound_stmt RCURLYPAREN ELSE if_stmt')
+    def if_elseif_stmt(self, p):
+        if p.expr>0:
+            return p.compound_stmt0
+        else:
+            return p.if_stmt
+
+    @_('IF "(" expr ")" LCURLYPAREN compound_stmt RCURLYPAREN ELSE if_else_stmt')
+    def if_elseif_stmt(self, p):
+        if p.expr > 0:
+            return p.compound_stmt0
+        else:
+            return p.if_else_stmt
+
 
     @_('empty')
     def else_stmt(self, p):
