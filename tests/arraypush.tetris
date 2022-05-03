@@ -1,0 +1,3 @@
+array b = [2,3,4,5];
+push(b,6);
+int c = pop(b);

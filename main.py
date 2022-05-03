@@ -7,10 +7,11 @@ def main():
     data = '''
     str x = "hey";
     int i = 0;
-    while (i < 10) {
-        display(x);
-        i = i+ 1;
-    }
+    
+    display(x);
+    tetro t = getNextTetromino();
+board b = getBoard();
+hardDrop(t,b);
     '''
     
     lexer = TetrisLexer()
@@ -30,4 +31,6 @@ def main():
     result = parser.parse(tokens)
     print(result)
 
-    
+
+if __name__ == '__main__':
+    main()  

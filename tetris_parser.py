@@ -20,6 +20,8 @@ class TetrisParser(Parser):
     var_val_map = {}
     var_type_map = {}
 
+
+ 
     indentation = ''
 
     # TODO UTILITY FUNCTIONS
@@ -47,16 +49,16 @@ class TetrisParser(Parser):
     # compound_stmt
     @_('statement')
     def compound_stmt(self, p):
-        return p.statement
+        return [p.statement]
 
     # ask
     @_('compound_stmt statement')
     def compound_stmt(self, p):
-        return p.compound_stmt + p.statement
+        return p.compound_stmt.append(p.statement)
 
 
     ##(check)
-    @_('init_stmt', 'reass_stmt', 'expr', 'bivf', 'rem_call','import_stmt','if_stmt','if_else_stmt','if_elseif_stmt','break_stmt','exit_stmt')
+    @_('init_stmt', 'reass_stmt', 'bivf', 'import_stmt','if_stmt','if_else_stmt','if_elseif_stmt','break_stmt','exit_stmt','while_stmt','timeout_stmt')
     def statement(self, p):
         return p[0]
 
@@ -77,7 +79,7 @@ class TetrisParser(Parser):
         else:
             if self.var_type_map[p.ID] == p.val['type']:
                 self.var_val_map[p.ID] = p.val['value']
-                return f"{p.ID} {p.ASSIGN} {p.val['value']}\n"
+                return [f"{p.ID} {p.ASSIGN} {p.val['value']}\n"]
             else:
                 self.error(self.VARIABLE_MISMATCH_ERROR, p.lineno)
                 return self.VARIABLE_MISMATCH_ERROR
@@ -90,7 +92,7 @@ class TetrisParser(Parser):
         else:
             if self.var_type_map[p.ID] == 'array':
                 self.var_val_map[p.ID] = p.array_val
-                return f"{p.ID} {p.ASSIGN} {p.array_val}\n"
+                return [f"{p.ID} {p.ASSIGN} {p.array_val}\n"]
             else:
                 self.error(self.VARIABLE_MISMATCH_ERROR, p.lineno)
                 return self.VARIABLE_MISMATCH_ERROR
@@ -103,7 +105,7 @@ class TetrisParser(Parser):
         else:
             if self.var_type_map[p.ID] == 'int':
                 self.var_val_map[p.ID] = p.expr
-                return f"{p.ID} {p.ASSIGN} {p.expr}\n"
+                return [f"{p.ID} {p.ASSIGN} {p.expr}\n"]
             else:
                 self.error(self.VARIABLE_MISMATCH_ERROR, p.lineno)
                 return self.VARIABLE_MISMATCH_ERROR
@@ -119,7 +121,7 @@ class TetrisParser(Parser):
             if p.data_type == p.val['type']:
                 self.var_val_map[p.ID] = p.val['value']
                 self.var_type_map[p.ID] = p.data_type
-                return f"{p.ID} {p.ASSIGN} {p.val['value']}\n"
+                return [f"{p.ID} {p.ASSIGN} {p.val['value']}\n"]
             else:
                 self.error(self.VARIABLE_MISMATCH_ERROR, p.lineno)
                 return self.VARIABLE_MISMATCH_ERROR
@@ -133,7 +135,7 @@ class TetrisParser(Parser):
             if p.data_type == 'int':
                 self.var_val_map[p.ID] = p.expr
                 self.var_type_map[p.ID] = p.data_type
-                return f"{p.ID} {p.ASSIGN} {p.expr}\n"
+                return [f"{p.ID} {p.ASSIGN} {p.expr}\n"]
             else:
                 self.error(self.VARIABLE_MISMATCH_ERROR, p.lineno)
                 return self.VARIABLE_MISMATCH_ERROR
@@ -146,7 +148,7 @@ class TetrisParser(Parser):
         else:
             self.var_val_map[p.ID] = p.array_val
             self.var_type_map[p.ID] = p.ARRAY
-            return f"{p.ID} {p.ASSIGN} {p.array_val}\n"
+            return [f"{p.ID} {p.ASSIGN} {p.array_val}\n"]
 
     # data_type
 
@@ -191,6 +193,13 @@ class TetrisParser(Parser):
 
         return p.set
 
+    @_('set SEPARATOR expr')
+    def set(self, p):
+        
+        p.set.append(p.expr)
+
+        return p.set
+
     # val(define birf)
 
     @_('birf')
@@ -214,7 +223,7 @@ class TetrisParser(Parser):
 
     @_(' "-" factor %prec UMINUS')
     def expr(self, p):
-        return -p.factor
+        return f"-( {p.factor} )"
 
     @_(' factor ')
     def expr(self, p):
@@ -226,21 +235,23 @@ class TetrisParser(Parser):
 
     @_(' expr "*" expr ')
     def expr(self, p):
-        return int(p.expr0)*int(p.expr1)
+        return f"( {p.expr0} ) * ( {p.expr1} )"
 
     @_(' expr "/" expr ')
     def expr(self, p):
-        if int(p.expr1) != 0:
-            return int(p.expr0)/int(p.expr1)
-        else:
-            self.error("Divide by zero error", p.lineno)
+        # if int(p.expr1) != 0:
+        #     return int(p.expr0)/int(p.expr1)
+        # else:
+        #     self.error("Divide by zero error", p.lineno)
+        return f"( {p.expr0} ) / ( {p.expr1} )"
 
     @_(' expr "%" expr ')
     def expr(self, p):
-        if int(p.expr1) != 0:
-            return int(p.expr0) % int(p.expr1)
-        else:
-            self.error("Modulus by zero error", p.lineno)
+        # if int(p.expr1) != 0:
+        #     return int(p.expr0) % int(p.expr1)
+        # else:
+        #     self.error("Modulus by zero error", p.lineno)
+        return f"( {p.expr0} ) % ( {p.expr1} )"
 
     # @_(' term ')
     # def sums(self,p):
@@ -248,74 +259,83 @@ class TetrisParser(Parser):
 
     @_(' expr "+" expr ')
     def expr(self, p):
-        return int(p.expr0)+int(p.expr1)
+        return f"( {p.expr0} ) + ( {p.expr1} )"
 
     @_(' expr "-" expr ')
     def expr(self, p):
-        return int(p.expr0)-int(p.expr1)
+        return f"( {p.expr0} ) - ( {p.expr1} )"
 
     @_(' expr GT expr ')
     def expr(self, p):
-        if int(p.expr0) > int(p.expr1):
-            return 1
-        else:
-            return 0
+        # if int(p.expr0) > int(p.expr1):
+        #     return 1
+        # else:
+        #     return 0
+        return f"( {p.expr0} ) > ( {p.expr1} )"
 
     @_(' expr LT expr ')
     def expr(self, p):
-        if int(p.expr0) < int(p.expr1):
-            return 1
-        else:
-            return 0
+        # if int(p.expr0) < int(p.expr1):
+        #     return 1
+        # else:
+        #     return 0
+        return f"( {p.expr0} ) < ( {p.expr1} )"
 
     @_(' expr LTE expr ')
     def expr(self, p):
-        if int(p.expr0) <= int(p.expr1):
-            return 1
-        else:
-            return 0
+        # if int(p.expr0) <= int(p.expr1):
+        #     return 1
+        # else:
+        #     return 0
+        return f"( {p.expr0} ) <= ( {p.expr1} )"
 
     @_(' expr GTE expr ')
     def expr(self, p):
-        if int(p.expr0) >= int(p.expr1):
-            return 1
-        else:
-            return 0
+        # if int(p.expr0) >= int(p.expr1):
+        #     return 1
+        # else:
+        #     return 0
+        return f"( {p.expr0} ) >= ( {p.expr1} )"
 
     @_(' expr NE expr ')
     def expr(self, p):
-        if int(p.expr0) != int(p.expr1):
-            return 1
-        else:
-            return 0
+        # if int(p.expr0) != int(p.expr1):
+        #     return 1
+        # else:
+        #     return 0
+        return f"( {p.expr0} ) != ( {p.expr1} )"
 
     @_(' expr EE expr ')
     def expr(self, p):
-        if int(p.expr0) == int(p.expr1):
-            return 1
-        else:
-            return 0
+        # if int(p.expr0) == int(p.expr1):
+        #     return 1
+        # else:
+        #     return 0
+        return f"( {p.expr0} ) == ( {p.expr1} )"
 
     @_(' NOT expr ')
     def expr(self, p):
-        if int(p.expr) > 0:
-            return 1
-        else:
-            return 0
+        # if int(p.expr) > 0:
+        #     return 1
+        # else:
+        #     return 0
+        return f"not ( {p.expr} > 0 )"
 
     @_(' expr AND expr ')
     def expr(self, p):
-        if int(p.expr0) > 0 and int(p.expr1) > 0:
-            return 1
-        else:
-            return 0
+        # if int(p.expr0) > 0 and int(p.expr1) > 0:
+        #     return 1
+        # else:
+        #     return 0
+        return f"( {p.expr0} > 0 ) and ( {p.expr1} > 0 )"
 
     @_(' expr OR expr ')
     def expr(self, p):
-        if int(p.expr0) > 0 or int(p.expr1) > 0:
-            return 1
-        else:
-            return 0
+        # if int(p.expr0) > 0 or int(p.expr1) > 0:
+        #     return 1
+        # else:
+        #     return 0
+        return f"( {p.expr0} > 0 ) or ( {p.expr1} > 0 )"
 
     @_('operand')
     def factor(self, p):
@@ -323,18 +343,18 @@ class TetrisParser(Parser):
 
     @_(' "(" expr ")" ')
     def factor(self, p):
-        return p.expr
+        return f"( {p.expr} )"
 
     @_('ID')
     def operand(self, p):
         if self.var_type_map[p.ID] == 'int':
-            return self.var_val_map[p.ID]
+            return f"int( {p.ID} )"
         else:
             self.error('This type cannot be in an expression', p.lineno)
 
     @_('NUMBER')
     def operand(self, p):
-        return p.NUMBER
+        return f"int( {p.NUMBER} )"
 
     # INITIALISATION  & RE-ASSIGNMENT STATEMENT GRAMMAR
 
@@ -366,7 +386,7 @@ class TetrisParser(Parser):
 
         number = {}
         number['type'] = self.var_type_map[p.ID]
-        number['value'] = self.var_val_map[p.ID]
+        number['value'] = p.ID
         return number
 
     @_('val')
@@ -440,28 +460,28 @@ class TetrisParser(Parser):
         if self.var_type_map[p.ID] == 'array':
             retval = self.pop(self.var_val_map[p.ID])
             self.var_val_map[p.ID] = retval[0]
-            return {'type': 'int', 'value': retval[1]}
+            return {'type': 'int', 'value': f"{p.ID}.pop( -1 )"}
         else:
             self.error("Pop expected an array identifier", p.lineno)
             return {'type': 'err', 'value': 'Type mismatch'}
 
     @_('POP "(" array_val ")"')
     def pop_call(self, p):
-        return {'type': 'int', 'value': self.pop(p.array_val)[1]}
+        return {'type': 'int', 'value': f"{p.array_val}.pop( -1 )"}
 
     # len_call(define self.len function)
     @_('LEN "(" ID ")"')
     def len_call(self, p):
         if self.var_type_map[p.ID] == 'array':
 
-            return {'type': 'int', 'value': len(self.var_val_map[p.ID])}
+            return {'type': 'int', 'value': f"len( {p.ID} )"}
         else:
             self.error("Pop expected an array identifier", p.lineno)
             return {'type': 'err', 'value': 'Type mismatch'}
 
     @_('LEN "(" array_val ")"')
     def len_call(self, p):
-        return {'type': 'int', 'value': len(p.array_val)}
+        return {'type': 'int', 'value': f"len( {p.array_val} )"}
 
     # birf_wp_call
     @_('birf_wp "(" params ")" ')
@@ -604,7 +624,7 @@ class TetrisParser(Parser):
             return {'type': 'err', 'value': 'Type mismatch'}
         deleted = p.array_val[p.NUMBER]
         del p.array_val[p.NUMBER]
-        return {'type': 'int', 'value': 1}
+        return f"{p.array_val}.pop( {p.NUMBER} )"
 
     @_('REM "(" array_val SEPARATOR ID ")"')
     def rem_call(self, p):
@@ -623,7 +643,7 @@ class TetrisParser(Parser):
             return {'type': 'err', 'value': 'Type mismatch'}
         deleted = p.array_val[self.var_val_map[p.ID]['value']]
         del p.array_val[self.var_val_map[p.ID]['value']]
-        return {'type': 'int', 'value': 1}
+        return f"{p.array_val}.pop( {p.ID} )"
 
     @_('REM "(" ID SEPARATOR NUMBER ")"')
     def rem_call(self, p):
@@ -638,7 +658,7 @@ class TetrisParser(Parser):
             return {'type': 'err', 'value': 'Type mismatch'}
         deleted = self.var_val_map[p.ID][p.NUMBER]
         del self.var_val_map[p.ID][p.NUMBER]
-        return {'type': 'int', 'value': 1}
+        return f"{p.ID}.pop( {p.NUMBER} )"
 
     @_('REM "(" ID SEPARATOR ID ")"')
     def rem_call(self, p):
@@ -663,7 +683,7 @@ class TetrisParser(Parser):
             return {'type': 'err', 'value': 'Type mismatch'}
         deleted = self.var_val_map[p.ID0][p.ID1]
         del self.var_val_map[p.ID0][p.ID1]
-        return {'type': 'int', 'value': 1}
+        return f"{p.array_val}.pop( {p.NUMBER} )"
 
     @_('PUSH "(" ID SEPARATOR val ")"')
     def push_call(self, p):
@@ -674,7 +694,7 @@ class TetrisParser(Parser):
             self.error(f"Variable {p.ID} not declared ", p.lineno)
             return {'type': 'err', 'value': 'Type mismatch'}
         self.var_val_map[p.ID].append(p.val['value'])
-        return {'type': 'int', 'value': 1}
+        return f"{p.ID}.append( {p.val['value']} )"
 
     @_('PUSH "(" ID SEPARATOR ID ")"')
     def push_call(self, p):
@@ -691,7 +711,7 @@ class TetrisParser(Parser):
             self.error(f"Variable {p.ID0} not declared ", p.lineno)
             return {'type': 'err', 'value': 'Type mismatch'}
         self.var_val_map[p.ID0].append(self.var_val_map[p.ID1])
-        return {'type': 'int', 'value': 1}
+        return f"{p.ID0}.append( {p.ID1} )"
 
     ## bivf_wop_call
     @_('bivf_wop "(" ")"')
@@ -724,14 +744,14 @@ class TetrisParser(Parser):
                 return {'type': 'err', 'value': ' clearLine: Params format mismatch'}
 
         elif p.bivf_wp == 'display':
-            if len(p.params) == 1 and p.params[0]['type'] == 'str':
+            if len(p.params) == 1 and (p.params[0]['type'] == 'str' or p.params[0]['type'] == 'int' or p.params[0]['type'] == 'array'):
                 return f"print({p.params[0]['value']})"
             else:
                 return {'type': 'err', 'value': ' display: Params format mismatch'}
 
     @_('bivf_wop_call EOL', 'bivf_wp_call EOL', 'push_call EOL', 'rem_call EOL', 'set_speed_call EOL')
     def bivf(self,p):
-        return f"{p[0]}\n"
+        return [f"{p[0]}\n"]
             
 
         
@@ -742,12 +762,12 @@ class TetrisParser(Parser):
 
     @_('BREAK EOL')
     def break_stmt(self, p):
-        return f"{p.BREAK} \n"
+        return [f"{p.BREAK} \n"]
 
     # exit statement(find)
     @_('EXIT EOL')
     def exit_stmt(self, p):
-        pass
+        return [f"break \n"]
 
     # Compound Statements
     # all_stmt
@@ -794,42 +814,62 @@ class TetrisParser(Parser):
     def empty(self, p):
         pass
 
+    #while_stmt
+    @_('WHILE "(" expr ")" LCURLYPAREN compound_stmt RCURLYPAREN')
+    def while_stmt(self, p):
+        return [f"while {p.expr}:\n",p.compound_stmt]
+
+
+
+    #timeout_stmt
+    @_('TIMEOUT "(" NUMBER ")" LCURLYPAREN compound_stmt RCURLYPAREN')
+    def timeout_stmt(self, p):
+        return [f"start=time.time()\n",f"while (time.time()-start<{p.NUMBER}):\n",p.compound_stmt]
+
+
+
+
     # if_stmt(big confusion)
     @_('IF "(" expr ")" LCURLYPAREN compound_stmt RCURLYPAREN')
     def if_stmt(self, p):
-        if p.expr:
-            return p.compound_stmt
-        else:
-            pass
+        return [f"if {p.expr}:\n",p.compound_stmt]
+        # if p.expr:
+        #     return p.compound_stmt
+        # else:
+        #     pass
 
     # else_stmt
     @_('IF "(" expr ")" LCURLYPAREN compound_stmt RCURLYPAREN ELSE LCURLYPAREN compound_stmt RCURLYPAREN')
     def if_else_stmt(self, p):
-        if p.expr>0:
-            return p.compound_stmt0
-        else:
-            return p.compound_stmt1
+        # if p.expr>0:
+        #     return p.compound_stmt0
+        # else:
+        #     return p.compound_stmt1
+        return [f"if {p.expr}:\n",p.compound_stmt0,f"else:\n",p.compound_stmt1]
 
     @_('IF "(" expr ")" LCURLYPAREN compound_stmt RCURLYPAREN ELSE if_stmt')
     def if_elseif_stmt(self, p):
-        if p.expr>0:
-            return p.compound_stmt0
-        else:
-            return p.if_stmt
+        # if p.expr>0:
+        #     return p.compound_stmt0
+        # else:
+        #     return p.if_stmt
+        return [f"if {p.expr}:\n", p.compound_stmt, f"else:\n", p.if_stmt]
 
     @_('IF "(" expr ")" LCURLYPAREN compound_stmt RCURLYPAREN ELSE if_else_stmt')
     def if_elseif_stmt(self, p):
-        if p.expr > 0:
-            return p.compound_stmt0
-        else:
-            return p.if_else_stmt
+        # if p.expr > 0:
+        #     return p.compound_stmt0
+        # else:
+        #     return p.if_else_stmt
+        return [f"if {p.expr}:\n", p.compound_stmt, f"else:\n", p.if_else_stmt]
 
     @_('IF "(" expr ")" LCURLYPAREN compound_stmt RCURLYPAREN ELSE if_elseif_stmt')
     def if_elseif_stmt(self, p):
-        if p.expr > 0:
-            return p.compound_stmt0
-        else:
-            return p.if_elseif_stmt
+        # if p.expr > 0:
+        #     return p.compound_stmt0
+        # else:
+        #     return p.if_elseif_stmt
+        return [f"if {p.expr}:\n", p.compound_stmt, f"else:\n", p.if_elseif_stmt]
 
 
     @_('empty')

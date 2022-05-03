@@ -553,6 +553,11 @@ def checkClearedLines(affected_lines):
     return cleared_lines
 
 
+def pop(array_val=None):
+    popped = array_val[len(array_val)-1]
+    array_val.pop(len(array_val)-1)
+    return popped
+
 def clearLines(lines):
     global stack
     def count_lines_above(line):
@@ -600,3 +605,17 @@ if __name__ == '__main__':
     playHW()
 
     curses.wrapper(main)
+
+## our language will start in what way??
+"""
+ARNAV COME TO CC..... uhhhh too much work
+rejut bsdk
+monthon chutiya
+arnav rendi
+taarush gawd
+devansh dickshit
+5 hi log hai apne group me lite... lol
+python3 generate_file.py
+
+python3 game.py
+"""
