@@ -26,7 +26,7 @@ class ProgramGenerator:
             elif isinstance(element, str):
                 # print("String found : " + element)
                 # print("Level : " + str(current_level))
-                for i in range(1,current_level):
+                for _ in range(1,current_level):
                     self.program_variable += '    '
                 self.program_variable += element
                 self.program_variable += '\n'
